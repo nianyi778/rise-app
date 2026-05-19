@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Rise · UI Prototype v3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #F2DECE;
+      --bg-2: #E6D8EE;
+      --bg-3: #C6DCF0;
+      --bg-4: #CEEADE;
+
+      --glass: rgba(255,255,255,0.60);
+      --glass-strong: rgba(255,255,255,0.82);
+      --glass-subtle: rgba(255,255,255,0.32);
+      --gborder: rgba(255,255,255,0.76);
+      --gborder-sub: rgba(255,255,255,0.42);
+      --blur: blur(26px);
+      --blur-sm: blur(14px);
+
+      --ink: #1B1928;
+      --ink-mid: #3B3650;
+      --ink-soft: #68637A;
+      --ink-muted: #A6A0B8;
+
+      --rose: #E06844;
+      --rose-glow: rgba(224,104,68,0.18);
+      --rose-dark: #C4522E;
+      --green: #53A47A;
+      --green-glow: rgba(83,164,122,0.15);
+      --violet: #7468E8;
+
+      --r-sm: 14px;
+      --r-md: 20px;
+      --r-lg: 28px;
+      --r-xl: 38px;
+
+      --sg: 0 8px 32px rgba(50,36,90,0.10);
+      --sf: 0 18px 52px rgba(50,36,90,0.17);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+      background: #BDB0CC;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding: 52px 24px;
+    }
+
+    .preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .plabel {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    /* Phone */
+    .phone {
+      width: 375px;
+      height: 812px;
+      border-radius: 52px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.2),
+        0 0 0 10px rgba(16,14,24,0.92),
+        0 0 0 11px rgba(255,255,255,0.07),
+        0 32px 80px rgba(0,0,0,0.42);
+      flex-shrink: 0;
+    }
+
+    /* Dynamic island */
+    .isle {
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 118px;
+      height: 34px;
+      background: #060410;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Gradient mesh bg */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(155deg, var(--bg-1) 0%, var(--bg-2) 32%, var(--bg-3) 68%, var(--bg-4) 100%);
+      z-index: 0;
+    }
+
+    .bg::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(224,104,68,0.20) 0%, transparent 62%);
+      border-radius: 50%;
+    }
+
+    .bg::after {
+      content: '';
+      position: absolute;
+      bottom: 40px; left: -70px;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(116,104,232,0.17) 0%, transparent 62%);
+      border-radius: 50%;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Status bar */
+    .sb {
+      height: 54px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      flex-shrink: 0;
+    }
+    .sb-t { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .sb-t.lt { color: rgba(255,255,255,0.85); }
+    .sb-ico { display: flex; gap: 5px; align-items: center; }
+
+    /* Glass helpers */
+    .g { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); }
+    .g-sm { background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--gborder); }
+    .g-sub { background:var(--glass-subtle); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--gborder-sub); }
+
+    .scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .scroll::-webkit-scrollbar { display:none; }
+
+    /* Tab bar */
+    .tabs {
+      height: 84px;
+      background: rgba(242,224,210,0.72);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-top: 1px solid var(--gborder);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 12px;
+      flex-shrink: 0;
+    }
+    .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+    .tab-lbl { font-size:10px; font-weight:700; color:var(--ink-muted); }
+    .tab.on .tab-lbl { color:var(--rose); }
+
+    /* Buttons */
+    .btn { width:100%; height:58px; border:none; border-radius:var(--r-lg); font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-rose { background:linear-gradient(135deg, var(--rose), var(--rose-dark)); color:#fff; box-shadow:0 8px 24px rgba(224,104,68,0.32); }
+    .btn-dark { background:var(--ink); color:#fff; }
+    .btn-glass { background:var(--glass-strong); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--gborder); color:var(--ink); }
+
+    /* ═══ ICONS (all custom SVG) ═══ */
+
+    /* App mark: rising sun above horizon */
+    .brand-mark svg { display:block; }
+
+    /* ═══════════════════════════
+       PAGE 1 · WELCOME
+    ═══════════════════════════ */
+    .ob-body { flex:1; display:flex; flex-direction:column; padding:10px 26px 36px; overflow-y:auto; scrollbar-width:none; }
+    .ob-body::-webkit-scrollbar { display:none; }
+
+    .ob-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 30px;
+    }
+    .ob-brand-name { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -0.2px; }
+
+    .ob-h1 { font-size: 29px; font-weight: 900; color:var(--ink); line-height:1.28; letter-spacing:-.4px; margin-bottom:10px; }
+    .ob-sub { font-size:15px; color:var(--ink-soft); line-height:1.68; margin-bottom:26px; font-weight:500; }
+
+    .ob-field {
+      width: 100%;
+      height: 104px;
+      background: var(--glass-strong);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--gborder);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--ink);
+      resize: none;
+      outline: none;
+      line-height: 1.65;
+      box-shadow: inset 0 2px 8px rgba(80,60,120,0.05);
+    }
+    .ob-field::placeholder { color: var(--ink-muted); }
+
+    .div-label { font-size:12px; color:var(--ink-muted); font-weight:700; margin:18px 0 12px; text-align:center; letter-spacing:.3px; }
+
+    .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--glass);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--gborder);
+      border-radius: 100px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--ink-mid);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      transition: all 0.18s;
+      box-shadow: var(--sg);
+    }
+    .chip.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+    .chip.on svg { stroke: #fff; }
+
+    /* ═══════════════════════════
+       PAGE 2 · WIZARD
+    ═══════════════════════════ */
+    .wiz-body { flex:1; display:flex; flex-direction:column; padding:10px 24px 36px; }
+
+    .prog-bar { display:flex; gap:6px; margin-bottom:34px; }
+    .pb { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,0.32); }
+    .pb.done { background:var(--ink); }
+    .pb.cur { background:var(--rose); }
+
+    .wiz-step { font-size:12px; font-weight:800; color:var(--rose); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+    .wiz-q { font-size:26px; font-weight:900; color:var(--ink); line-height:1.3; letter-spacing:-.3px; margin-bottom:8px; }
+    .wiz-hint { font-size:14px; color:var(--ink-soft); margin-bottom:28px; line-height:1.65; font-weight:500; }
+
+    .opt-list { display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1.5px solid var(--gborder);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.18s;
+      box-shadow: var(--sg);
+    }
+    .opt.on { background:var(--ink); border-color:var(--ink); }
+    .opt.on .opt-ico { background:rgba(255,255,255,0.1); }
+    .opt.on .opt-ico svg { stroke:rgba(255,255,255,0.9); }
+    .opt.on .opt-t { color:#fff; }
+    .opt.on .opt-d { color:rgba(255,255,255,0.55); }
+
+    .opt-ico { width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.44); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .opt-t { font-size:15px; font-weight:700; color:var(--ink); }
+    .opt-d { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+
+    /* ═══════════════════════════
+       PAGE 3 · HOME
+    ═══════════════════════════ */
+    .hd { padding:6px 22px 0; flex-shrink:0; }
+    .hd-greet { font-size:24px; font-weight:900; color:var(--ink); letter-spacing:-.4px; }
+    .hd-date { font-size:13px; color:var(--ink-soft); margin-top:2px; font-weight:500; }
+
+    .guard-pill {
+      margin-top:12px;
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm);
+      border:1px solid var(--gborder);
+      border-radius:100px; padding:7px 15px;
+      box-shadow:var(--sg);
+    }
+    .guard-txt { font-size:13px; font-weight:700; color:var(--ink-mid); }
+    .guard-txt b { color:var(--rose); }
+
+    .hs { padding:16px 22px 24px; }
+
+    /* Hero card */
+    .hero {
+      border-radius: var(--r-xl);
+      background: rgba(25,22,40,0.90);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: var(--sf);
+      padding: 24px 22px 22px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:170px; height:170px; background:radial-gradient(circle, rgba(224,104,68,0.28) 0%, transparent 58%); border-radius:50%; }
+    .hero::after { content:''; position:absolute; bottom:-40px; left:10px; width:110px; height:110px; background:radial-gradient(circle, rgba(116,104,232,0.22) 0%, transparent 60%); border-radius:50%; }
+
+    .hero-tag { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.16); border-radius:100px; padding:4px 12px; font-size:11px; color:rgba(255,255,255,0.7); font-weight:800; letter-spacing:.5px; text-transform:uppercase; margin-bottom:13px; }
+    .hero-goal-lbl { font-size:12.5px; color:rgba(255,255,255,0.48); font-weight:600; margin-bottom:6px; }
+    .hero-action { font-size:20px; font-weight:900; color:#fff; line-height:1.38; letter-spacing:-.2px; margin-bottom:16px; }
+
+    .hero-meta { display:flex; gap:8px; margin-bottom:20px; }
+    .hero-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.13); border-radius:100px; padding:5px 12px; font-size:12px; color:rgba(255,255,255,0.68); font-weight:700; }
+
+    .hero-btns { display:flex; gap:10px; }
+    .hb-start { flex:1; height:46px; background:#fff; border:none; border-radius:var(--r-sm); font-size:15px; font-weight:800; color:var(--ink); cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px; }
+    .hb-skip { height:46px; padding:0 18px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:var(--r-sm); color:rgba(255,255,255,0.78); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+    .sec-h { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:12px; letter-spacing:-.1px; }
+
+    .pc { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:10px; box-shadow:var(--sg); }
+    .pc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .pc-name { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:800; color:var(--ink); }
+    .pc-icon-box { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .pc-icon-box.rose { background:var(--rose-glow); }
+    .pc-icon-box.grn { background:var(--green-glow); }
+    .pc-day { font-size:11.5px; color:var(--ink-muted); background:rgba(255,255,255,0.55); padding:3px 10px; border-radius:100px; font-weight:800; }
+    .track { height:6px; background:rgba(27,25,40,0.08); border-radius:3px; overflow:hidden; margin-bottom:7px; }
+    .fill { height:100%; border-radius:3px; }
+    .fill-rose { background:linear-gradient(90deg, var(--rose), #F08060); }
+    .fill-grn { background:linear-gradient(90deg, var(--green), #7AC89A); }
+    .pc-foot { display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); }
+    .pct { font-weight:800; }
+    .pct-rose { color:var(--rose); }
+    .pct-grn { color:var(--green); }
+
+    .reflect-btn {
+      width:100%; height:52px;
+      background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm);
+      border:1px solid var(--gborder); border-radius:var(--r-md);
+      font-size:15px; color:var(--ink); cursor:pointer; font-family:inherit; font-weight:800;
+      display:flex; align-items:center; justify-content:center; gap:9px;
+      box-shadow:var(--sg); margin-top:4px;
+    }
+
+    /* ═══════════════════════════
+       PAGE 4 · FOCUS
+    ═══════════════════════════ */
+    .focus-nav { padding:8px 24px 0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .f-back { font-size:15px; color:rgba(255,255,255,0.42); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:3px; }
+    .f-title { font-size:15px; font-weight:800; color:rgba(255,255,255,0.82); }
+
+    .focus-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 30px 48px; }
+
+    .rw { position:relative; width:238px; height:238px; margin-bottom:48px; }
+    .breath { position:absolute; inset:-18px; border-radius:50%; background:radial-gradient(circle, rgba(224,104,68,0.14) 0%, transparent 68%); animation:breathe 3.6s ease-in-out infinite; }
+    @keyframes breathe { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.09);opacity:1} }
+    .rsvg { position:absolute; inset:0; transform:rotate(-90deg); }
+    .rt { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:5; }
+    .ra { fill:none; stroke:url(#rg); stroke-width:5; stroke-linecap:round; stroke-dasharray:659.73; stroke-dashoffset:165; }
+    .rmid { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .rtime { font-size:56px; font-weight:800; color:#fff; letter-spacing:-2px; line-height:1; }
+    .rsub { font-size:12.5px; color:rgba(255,255,255,0.36); margin-top:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+
+    .ft-lbl { font-size:10.5px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1.5px; font-weight:800; margin-bottom:10px; }
+    .ft-txt { font-size:18px; color:rgba(255,255,255,0.88); font-weight:700; text-align:center; line-height:1.52; max-width:260px; margin-bottom:54px; }
+
+    .fbtns { display:flex; gap:12px; width:100%; max-width:264px; }
+    .fb-pause { flex:1; height:52px; background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.17); border-radius:var(--r-md); color:#fff; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
+    .fb-end { height:52px; padding:0 18px; background:transparent; border:none; color:rgba(255,255,255,0.34); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+    /* ═══════════════════════════
+       PAGE 5 · COMPLETE
+    ═══════════════════════════ */
+    .cflayer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:1; }
+    .cp { position:absolute; border-radius:2px; animation:fall linear forwards; }
+    @keyframes fall { 0%{transform:translateY(-20px)rotate(0deg);opacity:1}100%{transform:translateY(900px)rotate(540deg);opacity:0} }
+
+    .cinner { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 28px; text-align:center; position:relative; z-index:2; }
+
+    /* Geometric starburst (replaces emoji) */
+    .starburst { animation:pop .5s cubic-bezier(.175,.885,.32,1.275) both; margin-bottom:18px; }
+    @keyframes pop { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+
+    .done-t { font-size:29px; font-weight:900; color:var(--ink); letter-spacing:-.5px; margin-bottom:6px; }
+    .done-s { font-size:15px; color:var(--ink-soft); margin-bottom:26px; font-weight:500; }
+
+    .streak-card { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:16px 22px; display:flex; align-items:center; gap:14px; margin-bottom:26px; box-shadow:var(--sg); width:100%; }
+    .sc-num { font-size:24px; font-weight:900; color:var(--ink); letter-spacing:-.5px; line-height:1; }
+    .sc-lbl { font-size:12px; color:var(--ink-soft); font-weight:700; margin-top:3px; }
+
+    .mood-sec { width:100%; margin-bottom:20px; }
+    .mood-q { font-size:16px; font-weight:800; color:var(--ink); margin-bottom:14px; }
+    .mood-row { display:flex; gap:10px; justify-content:center; }
+    .mb { flex:1; max-width:72px; height:72px; background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1.5px solid var(--gborder); border-radius:var(--r-md); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; font-family:inherit; transition:all .18s; box-shadow:var(--sg); }
+    .mb:hover,.mb.on { background:var(--ink); border-color:var(--ink); transform:translateY(-3px); }
+    .mb.on .mb-t { color:rgba(255,255,255,.65); }
+    .mb-e { font-size:22px; }
+    .mb-t { font-size:10px; color:var(--ink-soft); font-weight:800; }
+
+    .tmr-card { width:100%; background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-md); padding:14px 16px; text-align:left; margin-bottom:12px; box-shadow:var(--sg); }
+    .tmr-lbl { font-size:11px; color:var(--green); font-weight:800; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+    .tmr-txt { font-size:14px; color:var(--ink); font-weight:700; }
+
+    /* ═══════════════════════════
+       PAGE 6 · REFLECTION
+    ═══════════════════════════ */
+    .jh { padding:8px 22px 14px; background:rgba(240,224,210,0.65); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border-bottom:1px solid var(--gborder); flex-shrink:0; }
+    .jh-d { font-size:11.5px; color:var(--ink-muted); font-weight:800; text-transform:uppercase; letter-spacing:.8px; margin-bottom:3px; }
+    .jh-t { font-size:20px; font-weight:900; color:var(--ink); letter-spacing:-.3px; }
+
+    .jscroll { padding:16px 20px 20px; }
+
+    .ic { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:18px; margin-bottom:14px; box-shadow:var(--sg); }
+    .ic-tag { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .ic-dot { width:6px; height:6px; border-radius:50%; }
+    .ic-body { font-size:14.5px; color:var(--ink-mid); line-height:1.78; }
+    .ic-body strong { color:var(--ink); font-weight:800; }
+
+    .je { background:var(--glass-strong); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:18px; margin-bottom:14px; box-shadow:var(--sg); }
+    .je-lbl { font-size:12px; color:var(--ink-muted); font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+    .je-ta { width:100%; min-height:76px; background:transparent; border:none; outline:none; font-size:15px; font-family:inherit; color:var(--ink); line-height:1.75; resize:none; }
+    .je-ta::placeholder { color:var(--ink-muted); }
+
+    .dc { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:18px; margin-bottom:14px; box-shadow:var(--sg); }
+    .dc-q { font-size:14px; font-weight:800; color:var(--ink); margin-bottom:12px; line-height:1.55; }
+    .dc-opts { display:flex; flex-direction:column; gap:8px; }
+    .dc-opt { background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--gborder); border-radius:12px; padding:11px 14px; font-size:13.5px; color:var(--ink-mid); cursor:pointer; font-family:inherit; font-weight:700; text-align:left; transition:all .15s; }
+    .dc-opt.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+    /* ═══════════════════════════
+       PAGE 7 · REPORT
+    ═══════════════════════════ */
+    .rh-card { background:rgba(25,22,40,0.88); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid rgba(255,255,255,0.09); border-radius:var(--r-xl); padding:24px; margin-bottom:16px; box-shadow:var(--sf); position:relative; overflow:hidden; }
+    .rh-card::before { content:''; position:absolute; top:-60px; right:-60px; width:180px; height:180px; background:radial-gradient(circle, rgba(224,104,68,0.24) 0%, transparent 58%); border-radius:50%; }
+    .rh-w { font-size:12px; color:rgba(255,255,255,0.42); font-weight:800; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+    .rh-t { font-size:22px; font-weight:900; color:#fff; letter-spacing:-.3px; margin-bottom:22px; }
+    .rings { display:flex; gap:16px; }
+    .ri { display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .rbox { position:relative; width:74px; height:74px; }
+    .rbox svg { transform:rotate(-90deg); }
+    .rct { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .rv { font-size:16px; font-weight:900; color:#fff; line-height:1; }
+    .ru { font-size:10px; color:rgba(255,255,255,0.38); margin-top:2px; font-weight:700; }
+    .rl { font-size:11px; color:rgba(255,255,255,0.52); font-weight:700; text-align:center; }
+
+    .rinner { padding:0 20px 24px; }
+
+    .hl-card { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:18px; margin-bottom:12px; box-shadow:var(--sg); }
+    .hl-tag { font-size:11px; font-weight:900; color:var(--rose); text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .hl-body { font-size:15px; font-weight:700; color:var(--ink); line-height:1.55; }
+
+    .wg { background:var(--glass); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--gborder); border-radius:var(--r-md); padding:14px 16px; margin-bottom:8px; box-shadow:var(--sg); }
+    .wg-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+    .wg-nm { font-size:14px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:8px; }
+    .wg-ct { font-size:12px; color:var(--ink-muted); font-weight:800; }
+
+    .ltr { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:20px; margin-bottom:12px; box-shadow:var(--sg); }
+    .ltr-from { font-size:11px; color:var(--ink-muted); font-weight:800; letter-spacing:.4px; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+    .ltr-dot { width:7px; height:7px; border-radius:50%; background:var(--green); }
+    .ltr-body { font-size:14.5px; color:var(--ink-mid); line-height:1.82; }
+    .ltr-body strong { color:var(--ink); font-weight:800; }
+
+    /* ═══════════════════════════
+       PAGE 8 · GOALS
+    ═══════════════════════════ */
+    .gi { padding:14px 22px 24px; }
+
+    .gc { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; box-shadow:var(--sg); cursor:pointer; }
+    .grw { position:relative; width:58px; height:58px; flex-shrink:0; }
+    .grw svg { transform:rotate(-90deg); }
+    .gre { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .ginfo { flex:1; }
+    .gtitle { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:2px; }
+    .gmeta { font-size:12px; color:var(--ink-muted); margin-bottom:5px; font-weight:700; }
+    .gact { font-size:12.5px; font-weight:700; }
+    .gact.rose { color:var(--rose); }
+    .gact.grn { color:var(--green); }
+
+    .lk { background:rgba(255,255,255,0.28); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1.5px dashed rgba(27,25,40,0.14); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; opacity:.65; }
+    .lkico { width:58px; height:58px; background:rgba(255,255,255,0.5); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .lktxt { font-size:13.5px; color:var(--ink-soft); font-weight:700; line-height:1.5; }
+
+    .addbtn { width:100%; height:54px; background:rgba(255,255,255,0.32); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1.5px dashed rgba(27,25,40,0.18); border-radius:var(--r-lg); font-size:15px; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-weight:800; display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:14px; transition:all .2s; }
+    .addbtn:hover { border-color:var(--rose); color:var(--rose); background:var(--rose-glow); }
+
+    .pro { background:rgba(25,22,40,0.88); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid rgba(255,255,255,0.09); border-radius:var(--r-lg); padding:18px; display:flex; align-items:center; gap:14px; box-shadow:var(--sf); cursor:pointer; }
+    .pro-info { flex:1; }
+    .pro-nm { font-size:15px; font-weight:800; color:#fff; margin-bottom:3px; }
+    .pro-dc { font-size:12px; color:rgba(255,255,255,0.48); font-weight:600; }
+    .pro-tag { background:var(--rose); color:#fff; font-size:11px; font-weight:900; padding:5px 12px; border-radius:100px; white-space:nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════╗
+     ║  SVG DEFS (shared gradients)      ║
+     ╚═══════════════════════════════════╝ -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E06844"/>
+      <stop offset="100%" stop-color="#C0422A"/>
+    </linearGradient>
+    <!-- App mark: rising sun -->
+    <symbol id="ico-brand" viewBox="0 0 36 36">
+      <line x1="5" y1="26" x2="31" y2="26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="18" cy="24" r="4.5" fill="#E06844"/>
+      <line x1="18" y1="10" x2="18" y2="14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="26.5" y1="13" x2="24" y2="15.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="9.5" y1="13" x2="12" y2="15.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="29.5" y1="22" x2="25.5" y2="22" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="6.5" y1="22" x2="10.5" y2="22" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Bookmark/pin icon (replaces 📌) -->
+    <symbol id="ico-pin" viewBox="0 0 24 24">
+      <path d="M12 2C8.69 2 6 4.69 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.31-2.69-6-6-6z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="12" cy="8" r="2" stroke="currentColor" stroke-width="2" fill="none"/>
+    </symbol>
+    <!-- Shield (replaces 🛡️) -->
+    <symbol id="ico-shield" viewBox="0 0 24 24">
+      <path d="M12 2L4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <polyline points="8 12 11 15 16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Flame / streak (replaces 🔥) -->
+    <symbol id="ico-flame" viewBox="0 0 24 24">
+      <path d="M12 2C12 2 8 7 8 12a4 4 0 0 0 8 0c0-2-1-4-1-4s2 2 2 5a6 6 0 0 1-12 0c0-6 5-11 5-11z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+    </symbol>
+    <!-- Trophy (replaces 🏆) -->
+    <symbol id="ico-trophy" viewBox="0 0 24 24">
+      <path d="M6 2h12v8a6 6 0 0 1-12 0V2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <path d="M6 4H3a2 2 0 0 0 0 4c.9 2 2.5 3 3 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M18 4h3a2 2 0 0 1 0 4c-.9 2-2.5 3-3 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <line x1="12" y1="16" x2="12" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Play / start -->
+    <symbol id="ico-play" viewBox="0 0 24 24">
+      <polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Pen / write -->
+    <symbol id="ico-pen" viewBox="0 0 24 24">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Clock -->
+    <symbol id="ico-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+      <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Bell -->
+    <symbol id="ico-bell" viewBox="0 0 24 24">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Plus -->
+    <symbol id="ico-plus" viewBox="0 0 24 24">
+      <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <!-- Lock -->
+    <symbol id="ico-lock" viewBox="0 0 24 24">
+      <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Chevron right -->
+    <symbol id="ico-chev" viewBox="0 0 24 24">
+      <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Briefcase (work) -->
+    <symbol id="ico-work" viewBox="0 0 20 20">
+      <rect x="2" y="7" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+      <path d="M13 7V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <line x1="2" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <!-- Heart (health) -->
+    <symbol id="ico-health" viewBox="0 0 20 20">
+      <path d="M10 17C10 17 2 12 2 6.5a4.5 4.5 0 0 1 8-2.86A4.5 4.5 0 0 1 18 6.5C18 12 10 17 10 17z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Book (learning) -->
+    <symbol id="ico-learn" viewBox="0 0 20 20">
+      <path d="M2 3h7a2 2 0 0 1 2 2v12l-1-1-1 1V5a2 2 0 0 0-2-2H2V3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+      <path d="M18 3h-7a2 2 0 0 0-2 2v12l1-1 1 1V5a2 2 0 0 1 2-2h5V3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Coin (finance) -->
+    <symbol id="ico-fin" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.8" fill="none"/>
+      <path d="M10 6v1M10 13v1M8 8.5c0-1 .9-1.5 2-1.5s2 .6 2 1.5c0 1.8-4 1.8-4 3.5 0 1 .9 1.5 2 1.5s2-.5 2-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <!-- Pen nib (creative) -->
+    <symbol id="ico-create" viewBox="0 0 20 20">
+      <path d="M12 2L3 11l1 5 5 1 9-9a3 3 0 0 0-4-4z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+      <line x1="7" y1="13" x2="11" y2="9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <!-- Two linked circles (relations) -->
+    <symbol id="ico-relate" viewBox="0 0 20 20">
+      <circle cx="7" cy="10" r="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+      <circle cx="13" cy="10" r="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+    </symbol>
+    <!-- Starburst / celebration (replaces 🎉) -->
+    <symbol id="ico-star" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="16" fill="#E06844" opacity="0.9"/>
+      <!-- 8 rays -->
+      <line x1="40" y1="8" x2="40" y2="18" stroke="#E06844" stroke-width="4" stroke-linecap="round"/>
+      <line x1="40" y1="62" x2="40" y2="72" stroke="#E06844" stroke-width="4" stroke-linecap="round"/>
+      <line x1="8" y1="40" x2="18" y2="40" stroke="#7468E8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="62" y1="40" x2="72" y2="40" stroke="#7468E8" stroke-width="4" stroke-linecap="round"/>
+      <line x1="17" y1="17" x2="24" y2="24" stroke="#53A47A" stroke-width="4" stroke-linecap="round"/>
+      <line x1="56" y1="56" x2="63" y2="63" stroke="#53A47A" stroke-width="4" stroke-linecap="round"/>
+      <line x1="63" y1="17" x2="56" y2="24" stroke="#E06844" stroke-width="4" stroke-linecap="round"/>
+      <line x1="17" y1="63" x2="24" y2="56" stroke="#7468E8" stroke-width="4" stroke-linecap="round"/>
+      <!-- Outer dots -->
+      <circle cx="40" cy="4" r="3" fill="#E06844" opacity="0.5"/>
+      <circle cx="4" cy="40" r="3" fill="#7468E8" opacity="0.5"/>
+      <circle cx="76" cy="40" r="3" fill="#7468E8" opacity="0.5"/>
+      <circle cx="40" cy="76" r="3" fill="#53A47A" opacity="0.5"/>
+    </symbol>
+    <!-- Observation dot (ltr) -->
+    <!-- Home icon -->
+    <symbol id="ico-home" viewBox="0 0 24 24">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Bar chart -->
+    <symbol id="ico-chart" viewBox="0 0 24 24">
+      <line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <!-- Person -->
+    <symbol id="ico-person" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+      <path d="M4 20v-1a8 8 0 0 1 16 0v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ══════════════════════════════════════
+     PAGE 1 · WELCOME
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-t">9:41</span>
+      <div class="sb-ico">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".2"/></svg>
+        <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x=".5" y=".5" width="18" height="11" rx="2" stroke="var(--ink)" stroke-width="1.5"/><rect x="2" y="2" width="12" height="8" rx="1" fill="var(--ink)"/><path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--ink)"/></svg>
+      </div>
+    </div>
+
+    <div class="ob-body">
+      <!-- Brand mark -->
+      <div class="ob-brand">
+        <svg width="32" height="32" viewBox="0 0 36 36" color="var(--ink)"><use href="#ico-brand"/></svg>
+        <span class="ob-brand-name">Rise</span>
+      </div>
+
+      <h1 class="ob-h1">你有什么一直<br>想做，但一直<br>没动的事？</h1>
+      <p class="ob-sub">说出来就成功了一半，<br>不用完整，随便说说</p>
+
+      <textarea class="ob-field" placeholder="比如：我想开始运动 / 我要把副业启动 / 我一直想学日语..."></textarea>
+
+      <div class="div-label">— 或者从这里选一个方向 —</div>
+
+      <div class="chips">
+        <div class="chip on">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-work"/></svg>
+          职场
+        </div>
+        <div class="chip">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-health"/></svg>
+          健康
+        </div>
+        <div class="chip">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-learn"/></svg>
+          学习
+        </div>
+        <div class="chip">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-fin"/></svg>
+          财务
+        </div>
+        <div class="chip">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-create"/></svg>
+          创意
+        </div>
+        <div class="chip">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-relate"/></svg>
+          关系
+        </div>
+      </div>
+
+      <button class="btn btn-rose" style="margin-top:auto;">继续</button>
+    </div>
+  </div>
+</div>
+<div class="plabel">01 · 输入目标</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 2 · WIZARD
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-t">9:41</span></div>
+    <div class="wiz-body">
+      <div class="prog-bar">
+        <div class="pb done"></div>
+        <div class="pb cur"></div>
+        <div class="pb"></div>
+        <div class="pb"></div>
+      </div>
+      <div class="wiz-step">问题 2 · 4</div>
+      <div class="wiz-q">现在最大的<br>阻力是什么？</div>
+      <div class="wiz-hint">选一个最像你的，<br>后面我会专门针对这个帮你</div>
+
+      <div class="opt-list">
+        <div class="opt">
+          <div class="opt-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <div class="opt-t">不知道怎么开始</div>
+            <div class="opt-d">方向模糊，无从下手</div>
+          </div>
+        </div>
+        <div class="opt on">
+          <div class="opt-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <div class="opt-t">总感觉没时间</div>
+            <div class="opt-d">每天很忙，找不到空隙</div>
+          </div>
+        </div>
+        <div class="opt">
+          <div class="opt-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="15.54" y1="8.46" x2="15.54" y2="8.46"/>
+              <line x1="19.07" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+          </div>
+          <div>
+            <div class="opt-t">有思路，但就是拖</div>
+            <div class="opt-d">知道该做，就是迈不出那步</div>
+          </div>
+        </div>
+        <div class="opt">
+          <div class="opt-ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="opt-t">怕做不好</div>
+            <div class="opt-d">想做，但担心结果不够好</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-rose" style="margin-top:auto;">下一步</button>
+    </div>
+  </div>
+</div>
+<div class="plabel">02 · 卡片向导</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 3 · HOME
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-t">9:41</span>
+      <div class="sb-ico">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".2"/></svg>
+        <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x=".5" y=".5" width="18" height="11" rx="2" stroke="var(--ink)" stroke-width="1.5"/><rect x="2" y="2" width="12" height="8" rx="1" fill="var(--ink)"/><path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--ink)"/></svg>
+      </div>
+    </div>
+
+    <div class="hd">
+      <div class="hd-greet">早上好，李凯</div>
+      <div class="hd-date">5月19日 · 星期二</div>
+      <div class="guard-pill">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-shield"/></svg>
+        <span class="guard-txt">本周守护 <b>4次</b> · <b>110 分钟</b></span>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <div class="hs">
+        <!-- Hero task card -->
+        <div class="hero">
+          <div class="hero-tag">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"><use href="#ico-pin"/></svg>
+            今日要事
+          </div>
+          <div class="hero-goal-lbl">副业启动 · 第 12 天</div>
+          <div class="hero-action">整理 3 个可以接的<br>设计订单方向</div>
+          <div class="hero-meta">
+            <div class="hero-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="2.2"><use href="#ico-clock"/></svg>
+              25 分钟
+            </div>
+            <div class="hero-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="2.2"><use href="#ico-bell"/></svg>
+              今晚 8:30
+            </div>
+          </div>
+          <div class="hero-btns">
+            <button class="hb-start">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--ink)" stroke="none"><use href="#ico-play"/></svg>
+              开始专注
+            </button>
+            <button class="hb-skip">今天不行</button>
+          </div>
+        </div>
+
+        <div class="sec-h">进展</div>
+
+        <div class="pc">
+          <div class="pc-top">
+            <div class="pc-name">
+              <div class="pc-icon-box rose">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--rose)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-create"/></svg>
+              </div>
+              副业启动
+            </div>
+            <div class="pc-day">第 12 天</div>
+          </div>
+          <div class="track"><div class="fill fill-rose" style="width:65%"></div></div>
+          <div class="pc-foot"><span>第一阶段：建立接单能力</span><span class="pct pct-rose">65%</span></div>
+        </div>
+
+        <div class="pc">
+          <div class="pc-top">
+            <div class="pc-name">
+              <div class="pc-icon-box grn">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-health"/></svg>
+              </div>
+              规律运动
+            </div>
+            <div class="pc-day">第 5 天</div>
+          </div>
+          <div class="track"><div class="fill fill-grn" style="width:28%"></div></div>
+          <div class="pc-foot"><span>建立出门习惯</span><span class="pct pct-grn">28%</span></div>
+        </div>
+
+        <button class="reflect-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg>
+          写下今天的感受
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab on">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-home"/></svg>
+        <div class="tab-lbl" style="color:var(--rose)">首页</div>
+      </div>
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg>
+        <div class="tab-lbl">复盘</div>
+      </div>
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chart"/></svg>
+        <div class="tab-lbl">报告</div>
+      </div>
+      <div class="tab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-person"/></svg>
+        <div class="tab-lbl">目标</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="plabel">03 · 首页</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 4 · FOCUS TIMER
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle" style="background:#060210"></div>
+  <div class="bg" style="background:linear-gradient(155deg,#1A172C 0%,#261D3A 58%,#182030 100%)"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-t lt">9:41</span>
+      <div class="sb-ico">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="rgba(255,255,255,.65)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/></svg>
+      </div>
+    </div>
+    <div class="focus-nav">
+      <div class="f-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        返回
+      </div>
+      <div class="f-title">专注中</div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="focus-body">
+      <div class="rw">
+        <div class="breath"></div>
+        <svg class="rsvg" viewBox="0 0 238 238" fill="none">
+          <circle class="rt" cx="119" cy="119" r="106"/>
+          <circle class="ra" cx="119" cy="119" r="106"/>
+        </svg>
+        <div class="rmid">
+          <div class="rtime">24:38</div>
+          <div class="rsub">剩余时间</div>
+        </div>
+      </div>
+      <div class="ft-lbl">当前任务</div>
+      <div class="ft-txt">整理 3 个可以接的<br>设计订单方向</div>
+      <div class="fbtns">
+        <button class="fb-pause">暂停</button>
+        <button class="fb-end">提前结束</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="plabel">04 · 专注计时</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 5 · COMPLETE
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-t">10:06</span></div>
+    <div class="cflayer" id="conf"></div>
+    <div class="cinner">
+      <!-- Custom starburst (no emoji) -->
+      <div class="starburst">
+        <svg width="90" height="90" viewBox="0 0 80 80"><use href="#ico-star"/></svg>
+      </div>
+      <div class="done-t">完成了！第 12 天</div>
+      <div class="done-s">你又守住了今天的要事</div>
+
+      <div class="streak-card">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-flame"/></svg>
+        <div>
+          <div class="sc-num">连续 5 天</div>
+          <div class="sc-lbl">守护连击</div>
+        </div>
+      </div>
+
+      <div class="mood-sec">
+        <div class="mood-q">今天感觉怎么样？</div>
+        <div class="mood-row">
+          <button class="mb"><span class="mb-e">😤</span><span class="mb-t">很难</span></button>
+          <button class="mb"><span class="mb-e">😐</span><span class="mb-t">一般</span></button>
+          <button class="mb on"><span class="mb-e">😊</span><span class="mb-t">还好</span></button>
+          <button class="mb"><span class="mb-e">🚀</span><span class="mb-t">超棒</span></button>
+        </div>
+      </div>
+
+      <div class="tmr-card">
+        <div class="tmr-lbl">明天继续</div>
+        <div class="tmr-txt">联系 2 个潜在客户，发作品集</div>
+      </div>
+
+      <button class="btn btn-glass" style="margin-bottom:10px;height:50px;font-size:15px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        分享今天的进展
+      </button>
+      <button class="btn btn-dark" style="height:50px;font-size:15px;">回到首页</button>
+    </div>
+  </div>
+</div>
+<div class="plabel">05 · 完成庆祝</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 6 · REFLECTION
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-t">9:41</span></div>
+    <div class="jh">
+      <div class="jh-d">5月19日 · 星期二</div>
+      <div class="jh-t">今日复盘</div>
+    </div>
+    <div class="scroll">
+      <div class="jscroll">
+        <div class="ic">
+          <div class="ic-tag" style="color:var(--rose)"><div class="ic-dot" style="background:var(--rose)"></div>今日洞察</div>
+          <div class="ic-body">你已连续 5 天完成要事。<strong>第 5–14 天</strong>是习惯最容易断的阶段——今天守住了这个关键期，比你以为的更重要。<br><br>明天难度会稍提高一点，准备好了就继续。</div>
+        </div>
+
+        <div class="je">
+          <div class="je-lbl">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg>
+            写下你的感受（可选）
+          </div>
+          <textarea class="je-ta" placeholder="今天做的时候感受如何？卡在哪了？或者随便聊聊..."></textarea>
+        </div>
+
+        <div class="dc">
+          <div class="dc-q">做完之后，你觉得明天最可能遇到什么？</div>
+          <div class="dc-opts">
+            <button class="dc-opt">没什么问题，继续</button>
+            <button class="dc-opt on">可能又会没时间</button>
+            <button class="dc-opt">不确定下一步怎么做</button>
+          </div>
+        </div>
+
+        <div class="ic" style="background:rgba(83,164,122,0.12);border-color:rgba(83,164,122,0.28);">
+          <div class="ic-tag" style="color:var(--green)"><div class="ic-dot" style="background:var(--green)"></div>明天的准备</div>
+          <div class="ic-body">没关系，我把明天提醒调到<strong>午休 12:30</strong>——只需 15 分钟，比今天更短，碎片时间也能用上。</div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-home"/></svg><div class="tab-lbl">首页</div></div>
+      <div class="tab on"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg><div class="tab-lbl" style="color:var(--rose)">复盘</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chart"/></svg><div class="tab-lbl">报告</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-person"/></svg><div class="tab-lbl">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="plabel">06 · 今日复盘</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 7 · WEEKLY REPORT
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-t">9:41</span></div>
+    <div style="padding:6px 22px 0;flex-shrink:0;">
+      <div style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.4px;">本周报告</div>
+    </div>
+    <div class="scroll">
+      <div style="padding:14px 20px 24px;">
+        <div class="rh-card">
+          <div class="rh-w">5月12日 — 5月18日</div>
+          <div class="rh-t">你守住了 5 天</div>
+          <div class="rings">
+            <div class="ri">
+              <div class="rbox">
+                <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="5"/><circle cx="37" cy="37" r="30" fill="none" stroke="#E06844" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="53.9" transform="rotate(-90 37 37)"/></svg>
+                <div class="rct"><div class="rv">5/7</div><div class="ru">天</div></div>
+              </div>
+              <div class="rl">完成天数</div>
+            </div>
+            <div class="ri">
+              <div class="rbox">
+                <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="5"/><circle cx="37" cy="37" r="30" fill="none" stroke="#53A47A" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="62.8" transform="rotate(-90 37 37)"/></svg>
+                <div class="rct"><div class="rv">130</div><div class="ru">分钟</div></div>
+              </div>
+              <div class="rl">专注时长</div>
+            </div>
+            <div class="ri">
+              <div class="rbox">
+                <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="5"/><circle cx="37" cy="37" r="30" fill="none" stroke="#7468E8" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="75.4" transform="rotate(-90 37 37)"/></svg>
+                <div class="rct"><div class="rv">60%</div><div class="ru">月进度</div></div>
+              </div>
+              <div class="rl">月目标</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rinner">
+          <div class="hl-card">
+            <div class="hl-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-trophy"/></svg>
+              本周最大突破
+            </div>
+            <div class="hl-body">你第一次完成了「联系潜在客户」，从 0 到 1 是最难的那步</div>
+          </div>
+
+          <div class="wg">
+            <div class="wg-top">
+              <div class="wg-nm">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--rose)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-create"/></svg>
+                副业启动
+              </div>
+              <div class="wg-ct">4 / 7 天</div>
+            </div>
+            <div class="track"><div class="fill fill-rose" style="width:57%"></div></div>
+          </div>
+          <div class="wg">
+            <div class="wg-top">
+              <div class="wg-nm">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-health"/></svg>
+                规律运动
+              </div>
+              <div class="wg-ct">3 / 7 天</div>
+            </div>
+            <div class="track"><div class="fill fill-grn" style="width:43%"></div></div>
+          </div>
+
+          <div class="ltr">
+            <div class="ltr-from"><div class="ltr-dot"></div>本周观察</div>
+            <div class="ltr-body">你<strong>周三和周四</strong>连续两周容易跳过。下周试试把提醒改到<strong>午休 12:30</strong>——碎片时间，比等晚上更稳。<br><br>「超棒」占你这周心情的 40%，越来越找到节奏了。</div>
+          </div>
+
+          <button class="btn btn-dark" style="margin-top:4px;">分享本周成绩</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-home"/></svg><div class="tab-lbl">首页</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg><div class="tab-lbl">复盘</div></div>
+      <div class="tab on"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chart"/></svg><div class="tab-lbl" style="color:var(--rose)">报告</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-person"/></svg><div class="tab-lbl">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="plabel">07 · 周报</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 8 · MY GOALS
+══════════════════════════════════════ -->
+<div class="preview">
+<div class="phone">
+  <div class="isle"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-t">9:41</span></div>
+    <div style="padding:6px 22px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.4px;">我的要事</div>
+      <div style="font-size:12px;color:var(--ink-muted);font-weight:800;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);border:1px solid var(--gborder);padding:4px 12px;border-radius:100px;">2 / 3</div>
+    </div>
+    <div class="scroll">
+      <div class="gi">
+
+        <div class="gc">
+          <div class="grw">
+            <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="rgba(27,25,40,.1)" stroke-width="4"/><circle cx="29" cy="29" r="24" fill="none" stroke="var(--rose)" stroke-width="4" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="52.8" transform="rotate(-90 29 29)"/></svg>
+            <div class="gre">
+              <div style="width:30px;height:30px;background:var(--rose-glow);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--rose)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-create"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="ginfo">
+            <div class="gtitle">副业启动</div>
+            <div class="gmeta">第 12 天 · 第一阶段</div>
+            <div class="gact rose">今日：整理设计订单方向</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(27,25,40,.2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chev"/></svg>
+        </div>
+
+        <div class="gc">
+          <div class="grw">
+            <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="rgba(27,25,40,.1)" stroke-width="4"/><circle cx="29" cy="29" r="24" fill="none" stroke="var(--green)" stroke-width="4" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="108.6" transform="rotate(-90 29 29)"/></svg>
+            <div class="gre">
+              <div style="width:30px;height:30px;background:var(--green-glow);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-health"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="ginfo">
+            <div class="gtitle">规律运动</div>
+            <div class="gmeta">第 5 天 · 习惯建立期</div>
+            <div class="gact grn">今日：出门走 20 分钟</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(27,25,40,.2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chev"/></svg>
+        </div>
+
+        <div class="lk">
+          <div class="lkico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-lock"/></svg>
+          </div>
+          <div class="lktxt">还可以添加 1 个要事<br>最多 3 个</div>
+        </div>
+
+        <button class="addbtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-plus"/></svg>
+          添加新要事
+        </button>
+
+        <div class="pro">
+          <div style="width:42px;height:42px;background:rgba(224,104,68,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-shield"/></svg>
+          </div>
+          <div class="pro-info">
+            <div class="pro-nm">解锁 Pro</div>
+            <div class="pro-dc">5 个目标 · 深度复盘 · 完整报告</div>
+          </div>
+          <div class="pro-tag">29元/月</div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-home"/></svg><div class="tab-lbl">首页</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-pen"/></svg><div class="tab-lbl">复盘</div></div>
+      <div class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-chart"/></svg><div class="tab-lbl">报告</div></div>
+      <div class="tab on"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#ico-person"/></svg><div class="tab-lbl" style="color:var(--rose)">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="plabel">08 · 我的目标</div>
+</div>
+
+<script>
+  // Confetti
+  (function(){
+    const c = document.getElementById('conf');
+    const cls = ['#E06844','#7468E8','#53A47A','#F2DECE','#C6DCF0','#E6D8EE','#CEEADE'];
+    for(let i=0;i<44;i++){
+      const p = document.createElement('div');
+      p.className = 'cp';
+      const s = 5 + Math.random()*7;
+      p.style.cssText = [
+        `left:${Math.random()*100}%`,
+        `top:${-Math.random()*5}%`,
+        `width:${s}px`,`height:${s}px`,
+        `background:${cls[i%cls.length]}`,
+        `border-radius:${Math.random()>.5?'50%':'2px'}`,
+        `animation-duration:${2.6+Math.random()*1.8}s`,
+        `animation-delay:${Math.random()*1.3}s`
+      ].join(';');
+      c.appendChild(p);
+    }
+  })();
+
+  document.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      ch.closest('.chips').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+      ch.classList.add('on');
+    });
+  });
+  document.querySelectorAll('.opt').forEach(o=>{
+    o.addEventListener('click',()=>{
+      o.closest('.opt-list').querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));
+      o.classList.add('on');
+    });
+  });
+  document.querySelectorAll('.mb').forEach(b=>{
+    b.addEventListener('click',()=>{
+      b.closest('.mood-row').querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    });
+  });
+  document.querySelectorAll('.dc-opt').forEach(d=>{
+    d.addEventListener('click',()=>{
+      d.closest('.dc-opts').querySelectorAll('.dc-opt').forEach(x=>x.classList.remove('on'));
+      d.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>

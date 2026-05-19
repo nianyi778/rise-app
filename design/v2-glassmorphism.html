@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>要事优先 v2 · 毛玻璃版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #F5DDD0;
+      --bg-2: #E8DCF0;
+      --bg-3: #C8DFF0;
+      --bg-4: #D0EDE0;
+
+      --glass-white: rgba(255,255,255,0.62);
+      --glass-white-strong: rgba(255,255,255,0.80);
+      --glass-white-subtle: rgba(255,255,255,0.35);
+      --glass-border: rgba(255,255,255,0.75);
+      --glass-border-subtle: rgba(255,255,255,0.45);
+      --blur: blur(24px);
+      --blur-sm: blur(14px);
+
+      --ink: #1C1A2E;
+      --ink-mid: #3D3852;
+      --ink-soft: #6B667A;
+      --ink-muted: #A8A3B8;
+
+      --rose: #E8724A;
+      --rose-light: rgba(232,114,74,0.15);
+      --rose-dark: #C85A35;
+      --violet: #7B6FF0;
+      --violet-light: rgba(123,111,240,0.12);
+      --green: #5BA87C;
+      --green-light: rgba(91,168,124,0.15);
+
+      --r-sm: 14px;
+      --r-md: 20px;
+      --r-lg: 28px;
+      --r-xl: 36px;
+
+      --shadow-glass: 0 8px 32px rgba(60,40,100,0.10);
+      --shadow-float: 0 16px 48px rgba(60,40,100,0.16);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+      min-height: 100vh;
+      background: #C8B8D8;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 36px;
+      padding: 48px 24px;
+    }
+
+    /* ── Phone shell ── */
+    .preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .preview-label {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.25),
+        0 0 0 10px rgba(20,18,30,0.9),
+        0 0 0 11px rgba(255,255,255,0.08),
+        0 30px 80px rgba(0,0,0,0.45);
+      flex-shrink: 0;
+    }
+
+    /* Dynamic island */
+    .island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 34px;
+      background: #080810;
+      border-radius: 20px;
+      z-index: 100;
+    }
+
+    /* Mesh gradient background */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg,
+        var(--bg-1) 0%,
+        var(--bg-2) 35%,
+        var(--bg-3) 70%,
+        var(--bg-4) 100%);
+      z-index: 0;
+    }
+
+    /* Blob decorations on bg */
+    .bg::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232,114,74,0.22) 0%, transparent 65%);
+      border-radius: 50%;
+    }
+
+    .bg::after {
+      content: '';
+      position: absolute;
+      bottom: 60px; left: -60px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(123,111,240,0.18) 0%, transparent 65%);
+      border-radius: 50%;
+    }
+
+    /* Screen layer */
+    .screen {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Status bar ── */
+    .sb {
+      height: 52px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sb-time { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .sb-icons { display: flex; gap: 5px; align-items: center; }
+
+    /* ── Glass card ── */
+    .glass {
+      background: var(--glass-white);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glass);
+    }
+
+    .glass-sm {
+      background: var(--glass-white);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glass);
+    }
+
+    .glass-subtle {
+      background: var(--glass-white-subtle);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border-subtle);
+    }
+
+    /* ── Scroll area ── */
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+
+    /* ── Tab bar ── */
+    .tabbar {
+      height: 84px;
+      background: rgba(245,235,225,0.7);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 12px;
+      flex-shrink: 0;
+    }
+
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .tab-ico { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+    .tab-lbl { font-size: 10px; font-weight: 600; color: var(--ink-muted); }
+    .tab.on .tab-lbl { color: var(--rose); }
+
+    /* ── Buttons ── */
+    .btn-main {
+      width: 100%;
+      height: 58px;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-lg);
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-rose {
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      box-shadow: 0 8px 24px rgba(232,114,74,0.35);
+    }
+
+    .btn-glass {
+      background: var(--glass-white-strong);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      color: var(--ink);
+    }
+
+    /* ═══════════════════════════════
+       PAGE 1 · ONBOARDING WELCOME
+    ═══════════════════════════════ */
+    .ob-inner {
+      padding: 8px 24px 36px;
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 52px);
+    }
+
+    .ob-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--glass-white);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-mid);
+      width: fit-content;
+      margin-bottom: 28px;
+    }
+
+    .ob-eyebrow {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .ob-h1 {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.28;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .ob-sub {
+      font-size: 15px;
+      color: var(--ink-soft);
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .ob-textarea {
+      width: 100%;
+      height: 100px;
+      background: var(--glass-white-strong);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--ink);
+      resize: none;
+      outline: none;
+      box-shadow: inset 0 2px 8px rgba(100,80,140,0.06);
+      line-height: 1.65;
+    }
+    .ob-textarea::placeholder { color: var(--ink-muted); }
+
+    .ob-or { font-size: 12px; color: var(--ink-muted); font-weight: 600; margin: 18px 0 12px; text-align: center; }
+
+    .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+
+    .chip {
+      background: var(--glass-white);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      padding: 8px 15px;
+      font-size: 13px;
+      color: var(--ink-mid);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.18s;
+    }
+    .chip.on {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    /* ═══════════════════════════════
+       PAGE 2 · ONBOARDING WIZARD
+       (Card-by-card, no chat bubbles)
+    ═══════════════════════════════ */
+    .wizard-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 24px 36px;
+    }
+
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 32px;
+    }
+    .pdot {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.35);
+      flex: 1;
+      transition: all 0.3s;
+    }
+    .pdot.done { background: var(--ink); }
+    .pdot.current { background: var(--rose); }
+
+    .wizard-q-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--rose);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .wizard-q {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.3;
+      letter-spacing: -0.3px;
+      margin-bottom: 8px;
+    }
+
+    .wizard-hint {
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .option-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .opt-card {
+      background: var(--glass-white);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1.5px solid var(--glass-border);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+      box-shadow: var(--shadow-glass);
+    }
+
+    .opt-card.on {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .opt-card.on .opt-label { color: #fff; }
+    .opt-card.on .opt-desc { color: rgba(255,255,255,0.6); }
+
+    .opt-icon {
+      font-size: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .opt-card.on .opt-icon { background: rgba(255,255,255,0.12); }
+
+    .opt-label { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .opt-desc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+    /* ═══════════════════════════════
+       PAGE 3 · HOME
+    ═══════════════════════════════ */
+    .home-head {
+      padding: 6px 22px 0;
+      flex-shrink: 0;
+    }
+
+    .home-greeting { font-size: 24px; font-weight: 900; color: var(--ink); letter-spacing: -0.3px; }
+    .home-date { font-size: 13px; color: var(--ink-soft); margin-top: 2px; font-weight: 500; }
+
+    .streak-capsule {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--glass-white);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      padding: 7px 14px;
+      box-shadow: var(--shadow-glass);
+    }
+
+    .streak-flame { font-size: 14px; }
+    .streak-txt { font-size: 13px; font-weight: 700; color: var(--ink-mid); }
+    .streak-txt b { color: var(--rose); }
+
+    .home-scroll-pad { padding: 16px 22px 24px; }
+
+    /* Hero task card */
+    .hero {
+      border-radius: var(--r-xl);
+      background: rgba(28,26,46,0.88);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: var(--shadow-float);
+      padding: 24px 22px 22px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(232,114,74,0.3) 0%, transparent 60%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30px; left: 20px;
+      width: 100px; height: 100px;
+      background: radial-gradient(circle, rgba(123,111,240,0.25) 0%, transparent 60%);
+      border-radius: 50%;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-goal { font-size: 12.5px; color: rgba(255,255,255,0.5); font-weight: 500; margin-bottom: 6px; }
+
+    .hero-action {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.38;
+      letter-spacing: -0.2px;
+      margin-bottom: 16px;
+    }
+
+    .hero-pills { display: flex; gap: 8px; margin-bottom: 20px; }
+
+    .hero-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 100px;
+      padding: 5px 11px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+    }
+
+    .hero-btns { display: flex; gap: 10px; }
+
+    .hbtn-start {
+      flex: 1;
+      height: 46px;
+      background: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .hbtn-skip {
+      height: 46px;
+      padding: 0 18px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--r-sm);
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .sec-head { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.1px; }
+
+    /* Goal progress card */
+    .prog-card {
+      background: var(--glass-white);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-lg);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-glass);
+    }
+
+    .pc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .pc-name { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--ink); }
+    .pc-day { font-size: 11.5px; color: var(--ink-muted); background: rgba(255,255,255,0.6); padding: 3px 10px; border-radius: 100px; font-weight: 700; }
+
+    .pc-track { height: 6px; background: rgba(28,26,46,0.08); border-radius: 3px; overflow: hidden; margin-bottom: 7px; }
+    .pc-fill { height: 100%; border-radius: 3px; }
+    .pc-fill.rose { background: linear-gradient(90deg, var(--rose), #FF8F6B); }
+    .pc-fill.green { background: linear-gradient(90deg, var(--green), #7BC89A); }
+
+    .pc-foot { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); }
+    .pc-pct { font-weight: 800; }
+    .pc-pct.rose { color: var(--rose); }
+    .pc-pct.green { color: var(--green); }
+
+    .reflect-btn {
+      width: 100%;
+      height: 52px;
+      background: var(--glass-white);
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--r-md);
+      font-size: 15px;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-glass);
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════════════════
+       PAGE 4 · FOCUS TIMER
+    ═══════════════════════════════ */
+    .focus-bg { background: linear-gradient(160deg, #1C1A2E 0%, #2A1F3D 60%, #1A2535 100%) !important; }
+
+    .focus-bg .bg::before { background: radial-gradient(circle, rgba(232,114,74,0.2) 0%, transparent 65%); }
+    .focus-bg .bg::after { background: radial-gradient(circle, rgba(123,111,240,0.25) 0%, transparent 65%); }
+
+    .focus-nav { padding: 8px 24px 0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .focus-back-lbl { font-size: 15px; color: rgba(255,255,255,0.45); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+    .focus-title-lbl { font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.8); }
+
+    .focus-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 30px 44px;
+    }
+
+    .ring-wrap { position: relative; width: 236px; height: 236px; margin-bottom: 46px; }
+
+    .breath { position: absolute; inset: -16px; border-radius: 50%; background: radial-gradient(circle, rgba(232,114,74,0.13) 0%, transparent 70%); animation: breathe 3.6s ease-in-out infinite; }
+    @keyframes breathe { 0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.08);opacity:1} }
+
+    .ring-svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+    .ring-track { fill:none; stroke:rgba(255,255,255,0.07); stroke-width:5; }
+    .ring-arc { fill:none; stroke:url(#roseGrad); stroke-width:5; stroke-linecap:round; stroke-dasharray:659.73; stroke-dashoffset:165; }
+
+    .ring-mid { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .ring-time { font-size:56px; font-weight:800; color:#fff; letter-spacing:-2px; line-height:1; }
+    .ring-sub { font-size:13px; color:rgba(255,255,255,0.38); margin-top:8px; font-weight:600; letter-spacing:0.3px; }
+
+    .focus-task-lbl { font-size:11px; color:rgba(255,255,255,0.32); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; margin-bottom:10px; }
+    .focus-task-txt { font-size:18px; color:rgba(255,255,255,0.88); font-weight:700; text-align:center; line-height:1.5; max-width:260px; margin-bottom:52px; }
+
+    .focus-btns { display:flex; gap:12px; width:100%; max-width:260px; }
+
+    .fbtn-pause { flex:1; height:52px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:var(--r-md); color:#fff; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; backdrop-filter:var(--blur-sm); }
+    .fbtn-end { height:52px; padding:0 18px; background:transparent; border:none; color:rgba(255,255,255,0.35); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+
+    /* ═══════════════════════════════
+       PAGE 5 · COMPLETE
+    ═══════════════════════════════ */
+    .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:1; }
+    .cp { position:absolute; border-radius:2px; animation:fall linear forwards; }
+    @keyframes fall { 0%{transform:translateY(-20px)rotate(0deg);opacity:1}100%{transform:translateY(900px)rotate(540deg);opacity:0} }
+
+    .complete-inner {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:16px 28px;
+      text-align:center;
+      position:relative;
+      z-index:2;
+    }
+
+    .big-e { font-size:80px; margin-bottom:18px; animation:pop .5s cubic-bezier(0.175,.885,.32,1.275) both; }
+    @keyframes pop { 0%{transform:scale(0)}100%{transform:scale(1)} }
+
+    .done-title { font-size:30px; font-weight:900; color:var(--ink); letter-spacing:-.5px; margin-bottom:6px; }
+    .done-sub { font-size:15px; color:var(--ink-soft); margin-bottom:28px; font-weight:500; }
+
+    .streak-card {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:16px 24px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:28px;
+      box-shadow:var(--shadow-glass);
+      width:100%;
+    }
+
+    .sc-icon { font-size:32px; }
+    .sc-num { font-size:24px; font-weight:900; color:var(--ink); letter-spacing:-.5px; line-height:1; }
+    .sc-lbl { font-size:12px; color:var(--ink-soft); font-weight:600; margin-top:3px; }
+
+    .mood-sec { width:100%; margin-bottom:22px; }
+    .mood-q { font-size:16px; font-weight:800; color:var(--ink); margin-bottom:14px; }
+    .mood-row { display:flex; gap:10px; justify-content:center; }
+
+    .mood-btn {
+      flex:1;
+      max-width:72px;
+      height:72px;
+      background:var(--glass-white);
+      backdrop-filter:var(--blur-sm);
+      -webkit-backdrop-filter:var(--blur-sm);
+      border:1.5px solid var(--glass-border);
+      border-radius:var(--r-md);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      font-family:inherit;
+      transition:all .18s;
+      box-shadow:var(--shadow-glass);
+    }
+    .mood-btn:hover, .mood-btn.on { background:var(--ink); border-color:var(--ink); transform:translateY(-3px); box-shadow:var(--shadow-float); }
+    .mood-btn.on .mood-t { color:rgba(255,255,255,0.7); }
+    .mood-e { font-size:22px; }
+    .mood-t { font-size:10px; color:var(--ink-soft); font-weight:700; }
+
+    .tomorrow-card {
+      width:100%;
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-md);
+      padding:14px 16px;
+      text-align:left;
+      margin-bottom:14px;
+      box-shadow:var(--shadow-glass);
+    }
+    .tc-lbl { font-size:11px; color:var(--green); font-weight:800; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+    .tc-txt { font-size:14px; color:var(--ink); font-weight:600; }
+
+    /* ═══════════════════════════════
+       PAGE 6 · REFLECTION / JOURNAL
+       (Not "AI chat" — feel of diary)
+    ═══════════════════════════════ */
+    .journal-head {
+      padding:8px 22px 14px;
+      background:rgba(245,235,225,0.6);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border-bottom:1px solid var(--glass-border);
+      flex-shrink:0;
+    }
+
+    .jh-date { font-size:12px; color:var(--ink-muted); font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:3px; }
+    .jh-title { font-size:20px; font-weight:900; color:var(--ink); letter-spacing:-.3px; }
+
+    .journal-scroll { padding:16px 20px 20px; }
+
+    /* Today's insight card (not "AI says") */
+    .insight-card {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:18px;
+      margin-bottom:14px;
+      box-shadow:var(--shadow-glass);
+    }
+
+    .ic-tag { font-size:11px; color:var(--rose); font-weight:800; text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    .ic-dot { width:6px; height:6px; background:var(--rose); border-radius:50%; }
+    .ic-body { font-size:14.5px; color:var(--ink-mid); line-height:1.75; }
+    .ic-body strong { color:var(--ink); font-weight:800; }
+
+    /* Journal entry area */
+    .journal-entry-card {
+      background:var(--glass-white-strong);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:18px;
+      margin-bottom:14px;
+      box-shadow:var(--shadow-glass);
+    }
+
+    .je-label { font-size:12px; color:var(--ink-muted); font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+
+    .journal-textarea {
+      width:100%;
+      min-height:80px;
+      background:transparent;
+      border:none;
+      outline:none;
+      font-size:15px;
+      font-family:inherit;
+      color:var(--ink);
+      line-height:1.75;
+      resize:none;
+    }
+    .journal-textarea::placeholder { color:var(--ink-muted); }
+
+    /* Blocker diagnosis card */
+    .diag-card {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:18px;
+      margin-bottom:14px;
+      box-shadow:var(--shadow-glass);
+    }
+
+    .diag-q { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:12px; line-height:1.55; }
+
+    .diag-opts { display:flex; flex-direction:column; gap:8px; }
+    .diag-opt {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur-sm);
+      -webkit-backdrop-filter:var(--blur-sm);
+      border:1px solid var(--glass-border);
+      border-radius:12px;
+      padding:11px 14px;
+      font-size:13.5px;
+      color:var(--ink-mid);
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:600;
+      text-align:left;
+      transition:all .15s;
+    }
+    .diag-opt.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+    /* Send button */
+    .send-row { display:flex; gap:10px; align-items:center; padding:10px 20px 26px; background:rgba(245,235,225,0.65); backdrop-filter:var(--blur); border-top:1px solid var(--glass-border); flex-shrink:0; }
+    .send-input { flex:1; height:42px; background:rgba(255,255,255,0.5); backdrop-filter:var(--blur-sm); border:1px solid var(--glass-border); border-radius:21px; padding:0 16px; font-size:15px; font-family:inherit; outline:none; color:var(--ink); }
+    .send-input::placeholder { color:var(--ink-muted); }
+    .send-ico-btn { width:42px; height:42px; background:var(--ink); border:none; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+    /* ═══════════════════════════════
+       PAGE 7 · WEEKLY REPORT
+       (Personal letter style)
+    ═══════════════════════════════ */
+    .report-head-card {
+      background:rgba(28,26,46,0.85);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:var(--r-xl);
+      padding:24px;
+      margin-bottom:16px;
+      box-shadow:var(--shadow-float);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .report-head-card::before { content:''; position:absolute; top:-50px; right:-50px; width:160px; height:160px; background:radial-gradient(circle, rgba(232,114,74,0.25) 0%, transparent 60%); border-radius:50%; }
+
+    .rhc-week { font-size:12px; color:rgba(255,255,255,0.45); font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+    .rhc-title { font-size:22px; font-weight:900; color:#fff; letter-spacing:-.3px; margin-bottom:22px; }
+
+    .rings-row { display:flex; gap:16px; }
+    .ring-item { display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .ring-box { position:relative; width:74px; height:74px; }
+    .ring-box svg { transform:rotate(-90deg); }
+    .ring-ct { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .ring-v { font-size:16px; font-weight:800; color:#fff; line-height:1; }
+    .ring-u { font-size:10px; color:rgba(255,255,255,0.4); margin-top:2px; }
+    .ring-lbl { font-size:11px; color:rgba(255,255,255,0.55); font-weight:700; text-align:center; }
+
+    .report-inner { padding:0 20px 24px; }
+
+    .highlight-glass {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:18px;
+      margin-bottom:12px;
+      box-shadow:var(--shadow-glass);
+    }
+
+    .hl-tag { font-size:11px; font-weight:900; color:var(--rose); text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+    .hl-body { font-size:15px; font-weight:700; color:var(--ink); line-height:1.55; }
+
+    /* Letter style AI observation */
+    .letter-card {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:20px;
+      margin-bottom:12px;
+      box-shadow:var(--shadow-glass);
+    }
+
+    .letter-from { font-size:11px; color:var(--ink-muted); font-weight:700; letter-spacing:.4px; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+    .letter-from-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+    .letter-body { font-size:14.5px; color:var(--ink-mid); line-height:1.8; }
+    .letter-body strong { color:var(--ink); font-weight:800; }
+
+    .wg-card { background:var(--glass-white); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1px solid var(--glass-border); border-radius:var(--r-md); padding:14px 16px; margin-bottom:8px; box-shadow:var(--shadow-glass); }
+    .wg-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+    .wg-name { font-size:14px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:7px; }
+    .wg-ct { font-size:12px; color:var(--ink-muted); font-weight:700; }
+
+    /* ═══════════════════════════════
+       PAGE 8 · MY GOALS
+    ═══════════════════════════════ */
+    .goals-inner { padding:14px 22px 24px; }
+
+    .goal-card {
+      background:var(--glass-white);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid var(--glass-border);
+      border-radius:var(--r-lg);
+      padding:16px 18px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      box-shadow:var(--shadow-glass);
+      cursor:pointer;
+    }
+
+    .goal-ring-w { position:relative; width:58px; height:58px; flex-shrink:0; }
+    .goal-ring-w svg { transform:rotate(-90deg); }
+    .goal-ring-e { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .goal-info { flex:1; }
+    .goal-title { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:2px; }
+    .goal-meta { font-size:12px; color:var(--ink-muted); margin-bottom:5px; font-weight:600; }
+    .goal-act { font-size:12.5px; color:var(--rose); font-weight:700; }
+    .goal-act.green { color:var(--green); }
+    .goal-chevron { flex-shrink:0; }
+
+    .locked-card {
+      background:rgba(255,255,255,0.28);
+      backdrop-filter:var(--blur-sm);
+      -webkit-backdrop-filter:var(--blur-sm);
+      border:1.5px dashed rgba(28,26,46,0.15);
+      border-radius:var(--r-lg);
+      padding:16px 18px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      opacity:.7;
+    }
+    .lock-ico { width:58px; height:58px; background:rgba(255,255,255,0.5); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .lock-txt { font-size:13.5px; color:var(--ink-soft); font-weight:600; line-height:1.5; }
+
+    .add-btn { width:100%; height:54px; background:rgba(255,255,255,0.35); backdrop-filter:var(--blur-sm); -webkit-backdrop-filter:var(--blur-sm); border:1.5px dashed rgba(28,26,46,0.2); border-radius:var(--r-lg); font-size:15px; color:var(--ink-soft); cursor:pointer; font-family:inherit; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px; transition:all .18s; }
+    .add-btn:hover { border-color:var(--rose); color:var(--rose); background:var(--rose-light); }
+
+    .pro-card-g {
+      background:rgba(28,26,46,0.85);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:var(--r-lg);
+      padding:18px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      box-shadow:var(--shadow-float);
+      cursor:pointer;
+    }
+    .pro-ico { font-size:30px; }
+    .pro-info { flex:1; }
+    .pro-nm { font-size:15px; font-weight:800; color:#fff; margin-bottom:3px; }
+    .pro-dc { font-size:12px; color:rgba(255,255,255,0.5); }
+    .pro-tag { background:var(--rose); color:#fff; font-size:11px; font-weight:800; padding:5px 12px; border-radius:100px; white-space:nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 1 · WELCOME            ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".22"/></svg>
+        <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x=".5" y=".5" width="18" height="11" rx="2" stroke="var(--ink)" stroke-width="1.5"/><rect x="2" y="2" width="12" height="8" rx="1" fill="var(--ink)"/><path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--ink)"/></svg>
+      </div>
+    </div>
+
+    <div class="ob-inner">
+      <div class="ob-badge">🌱 要事优先</div>
+      <div class="ob-eyebrow">让我认识你</div>
+      <h1 class="ob-h1">你有什么一直<br>想做，但<br>一直没动的事？</h1>
+      <p class="ob-sub">说出来就成功了一半，<br>不用很完整</p>
+
+      <textarea class="ob-textarea" placeholder="比如：我想开始运动 / 我要把副业启动 / 我一直想学日语..."></textarea>
+
+      <div class="ob-or">— 或者选一个方向 —</div>
+
+      <div class="chips-wrap">
+        <div class="chip on">💼 职场</div>
+        <div class="chip">💪 健康</div>
+        <div class="chip">📚 学习</div>
+        <div class="chip">💰 财务</div>
+        <div class="chip">🎨 创意</div>
+        <div class="chip">❤️ 关系</div>
+      </div>
+
+      <button class="btn-main btn-rose" style="margin-top:auto;">继续 →</button>
+    </div>
+  </div>
+</div>
+<div class="preview-label">01 · 欢迎 & 输入目标</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 2 · WIZARD (NO CHAT)   ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-time">9:41</span>
+    </div>
+
+    <div class="wizard-body">
+      <div class="progress-dots">
+        <div class="pdot done"></div>
+        <div class="pdot current"></div>
+        <div class="pdot"></div>
+        <div class="pdot"></div>
+      </div>
+
+      <div class="wizard-q-num">问题 2 / 4</div>
+      <div class="wizard-q">现在最大的<br>阻力是什么？</div>
+      <div class="wizard-hint">选一个最像你的，<br>后面我会帮你专门解决这个问题</div>
+
+      <div class="option-cards">
+        <div class="opt-card">
+          <div class="opt-icon">🧩</div>
+          <div>
+            <div class="opt-label">不知道怎么开始</div>
+            <div class="opt-desc">方向模糊，感觉无从下手</div>
+          </div>
+        </div>
+        <div class="opt-card on">
+          <div class="opt-icon">⏰</div>
+          <div>
+            <div class="opt-label">总感觉没时间</div>
+            <div class="opt-desc">每天很忙，找不到空隙</div>
+          </div>
+        </div>
+        <div class="opt-card">
+          <div class="opt-icon">😶</div>
+          <div>
+            <div class="opt-label">有思路，但就是拖</div>
+            <div class="opt-desc">知道该做，就是迈不出那步</div>
+          </div>
+        </div>
+        <div class="opt-card">
+          <div class="opt-icon">😰</div>
+          <div>
+            <div class="opt-label">怕做不好</div>
+            <div class="opt-desc">想做，但担心结果不够好</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-main btn-rose" style="margin-top:auto;">下一步</button>
+    </div>
+  </div>
+</div>
+<div class="preview-label">02 · 卡片向导（无聊天框）</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 3 · HOME               ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb">
+      <span class="sb-time">9:41</span>
+      <div class="sb-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".22"/></svg>
+        <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x=".5" y=".5" width="18" height="11" rx="2" stroke="var(--ink)" stroke-width="1.5"/><rect x="2" y="2" width="12" height="8" rx="1" fill="var(--ink)"/><path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--ink)"/></svg>
+      </div>
+    </div>
+
+    <div class="home-head">
+      <div class="home-greeting">早上好，李凯 👋</div>
+      <div class="home-date">5月19日 · 星期二</div>
+      <div class="streak-capsule">
+        <span class="streak-flame">🛡️</span>
+        <span class="streak-txt">本周守护 <b>4次</b> · <b>110 分钟</b></span>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <div class="home-scroll-pad">
+        <!-- Hero dark card -->
+        <div class="hero">
+          <div class="hero-label">📌 今日要事</div>
+          <div class="hero-goal">副业启动 · 第 12 天</div>
+          <div class="hero-action">整理 3 个可以接的<br>设计订单方向</div>
+          <div class="hero-pills">
+            <div class="hero-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              25 分钟
+            </div>
+            <div class="hero-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+              今晚 8:30
+            </div>
+          </div>
+          <div class="hero-btns">
+            <button class="hbtn-start">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--ink)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              开始专注
+            </button>
+            <button class="hbtn-skip">今天不行</button>
+          </div>
+        </div>
+
+        <div class="sec-head">进展</div>
+
+        <div class="prog-card">
+          <div class="pc-top">
+            <div class="pc-name"><span>🎨</span>副业启动</div>
+            <div class="pc-day">第 12 天</div>
+          </div>
+          <div class="pc-track"><div class="pc-fill rose" style="width:65%"></div></div>
+          <div class="pc-foot"><span>第一阶段：建立接单能力</span><span class="pc-pct rose">65%</span></div>
+        </div>
+
+        <div class="prog-card">
+          <div class="pc-top">
+            <div class="pc-name"><span>💪</span>规律运动</div>
+            <div class="pc-day">第 5 天</div>
+          </div>
+          <div class="pc-track"><div class="pc-fill green" style="width:28%"></div></div>
+          <div class="pc-foot"><span>建立出门习惯</span><span class="pc-pct green">28%</span></div>
+        </div>
+
+        <button class="reflect-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          写下今天的感受
+        </button>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab on">
+        <div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="rgba(232,114,74,.12)"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="tab-lbl" style="color:var(--rose)">首页</div>
+      </div>
+      <div class="tab">
+        <div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div>
+        <div class="tab-lbl">复盘</div>
+      </div>
+      <div class="tab">
+        <div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="tab-lbl">报告</div>
+      </div>
+      <div class="tab">
+        <div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div>
+        <div class="tab-lbl">目标</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="preview-label">03 · 首页</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 4 · FOCUS TIMER        ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island" style="background:#0A0814"></div>
+  <div class="bg" style="background:linear-gradient(160deg,#1C1A2E 0%,#2A1F3D 60%,#1A2535 100%)"></div>
+  <div class="screen">
+    <svg width="0" height="0"><defs><linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F4845F"/><stop offset="100%" stop-color="#E05C2E"/></linearGradient></defs></svg>
+
+    <div class="sb">
+      <span class="sb-time" style="color:rgba(255,255,255,.8)">9:41</span>
+      <div class="sb-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="rgba(255,255,255,.65)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/></svg>
+      </div>
+    </div>
+
+    <div class="focus-nav">
+      <div class="focus-back-lbl">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        返回
+      </div>
+      <div class="focus-title-lbl">专注中</div>
+      <div style="width:44px"></div>
+    </div>
+
+    <div class="focus-content">
+      <div class="ring-wrap">
+        <div class="breath"></div>
+        <svg class="ring-svg" viewBox="0 0 236 236" fill="none">
+          <circle class="ring-track" cx="118" cy="118" r="105"/>
+          <circle class="ring-arc" cx="118" cy="118" r="105"/>
+        </svg>
+        <div class="ring-mid">
+          <div class="ring-time">24:38</div>
+          <div class="ring-sub">剩余时间</div>
+        </div>
+      </div>
+
+      <div class="focus-task-lbl">当前任务</div>
+      <div class="focus-task-txt">整理 3 个可以接的<br>设计订单方向</div>
+
+      <div class="focus-btns">
+        <button class="fbtn-pause">暂停</button>
+        <button class="fbtn-end">提前结束</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="preview-label">04 · 专注计时（深色）</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 5 · COMPLETE           ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-time">10:06</span></div>
+
+    <div class="confetti-layer" id="conf"></div>
+
+    <div class="complete-inner">
+      <div class="big-e">🎉</div>
+      <div class="done-title">完成了！第 12 天</div>
+      <div class="done-sub">你又守住了今天的要事</div>
+
+      <div class="streak-card">
+        <div class="sc-icon">🔥</div>
+        <div>
+          <div class="sc-num">连续 5 天</div>
+          <div class="sc-lbl">要事守护中</div>
+        </div>
+      </div>
+
+      <div class="mood-sec">
+        <div class="mood-q">今天感觉怎么样？</div>
+        <div class="mood-row">
+          <button class="mood-btn"><span class="mood-e">😤</span><span class="mood-t">很难</span></button>
+          <button class="mood-btn"><span class="mood-e">😐</span><span class="mood-t">一般</span></button>
+          <button class="mood-btn on"><span class="mood-e">😊</span><span class="mood-t">还好</span></button>
+          <button class="mood-btn"><span class="mood-e">🚀</span><span class="mood-t">超棒</span></button>
+        </div>
+      </div>
+
+      <div class="tomorrow-card">
+        <div class="tc-lbl">明天继续</div>
+        <div class="tc-txt">联系 2 个潜在客户，发作品集</div>
+      </div>
+
+      <button class="btn-main btn-glass" style="margin-bottom:10px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        分享今天的进展
+      </button>
+      <button class="btn-main" style="background:var(--ink);">回到首页</button>
+    </div>
+  </div>
+</div>
+<div class="preview-label">05 · 完成庆祝</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 6 · REFLECTION JOURNAL ║
+     ║  (Not "AI chat")             ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-time">9:41</span></div>
+
+    <div class="journal-head">
+      <div class="jh-date">5月19日 · 星期二</div>
+      <div class="jh-title">今日复盘 ✍️</div>
+    </div>
+
+    <div class="scroll">
+      <div class="journal-scroll">
+
+        <!-- Coach insight (no "AI" label) -->
+        <div class="insight-card">
+          <div class="ic-tag"><div class="ic-dot"></div>今日洞察</div>
+          <div class="ic-body">
+            你已经连续 5 天完成了要事。<strong>第 5-14 天</strong>是习惯最容易断的阶段——今天你守住了这个关键时期，比你以为的更有意义。<br><br>
+            明天的任务难度会稍微提高一点，感觉准备好了就继续。
+          </div>
+        </div>
+
+        <!-- User reflection area -->
+        <div class="journal-entry-card">
+          <div class="je-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            写下你的感受（可选）
+          </div>
+          <textarea class="journal-textarea" placeholder="今天做的时候有什么感受？卡在哪了？或者只是随便聊聊..."></textarea>
+        </div>
+
+        <!-- Blocker diagnosis (feels like self-reflection, not chatbot) -->
+        <div class="diag-card">
+          <div class="diag-q">做完之后，你觉得明天最可能遇到什么？</div>
+          <div class="diag-opts">
+            <button class="diag-opt">没什么问题，继续</button>
+            <button class="diag-opt on">可能又会没时间</button>
+            <button class="diag-opt">不确定下一步该怎么做</button>
+          </div>
+        </div>
+
+        <!-- Insight based on selection -->
+        <div class="insight-card" style="background:rgba(91,168,124,0.12);border-color:rgba(91,168,124,0.3)">
+          <div class="ic-tag" style="color:var(--green)"><div class="ic-dot" style="background:var(--green)"></div>明天的准备</div>
+          <div class="ic-body">
+            没关系，我把明天的提醒调到<strong>午休 12:30</strong>——只需要 15 分钟，比今天更短。碎片时间也能用上。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-lbl">首页</div></div>
+      <div class="tab on"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" fill="var(--rose-light)"/></svg></div><div class="tab-lbl" style="color:var(--rose)">复盘</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-lbl">报告</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div><div class="tab-lbl">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="preview-label">06 · 今日复盘（日记感）</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 7 · WEEKLY REPORT      ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-time">9:41</span></div>
+    <div style="padding:6px 22px 0;flex-shrink:0;">
+      <div style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.3px;">本周报告</div>
+    </div>
+
+    <div class="scroll">
+      <div style="padding:14px 20px 24px;">
+
+        <div class="report-head-card">
+          <div class="rhc-week">5月12日 — 5月18日</div>
+          <div class="rhc-title">你守住了 5 天 🏆</div>
+          <div class="rings-row">
+            <div class="ring-item">
+              <div class="ring-box">
+                <svg width="74" height="74" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#F4845F" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="53.9" transform="rotate(-90 37 37)"/>
+                </svg>
+                <div class="ring-ct"><div class="ring-v">5/7</div><div class="ring-u">天</div></div>
+              </div>
+              <div class="ring-lbl">完成天数</div>
+            </div>
+            <div class="ring-item">
+              <div class="ring-box">
+                <svg width="74" height="74" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#5BA87C" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="62.8" transform="rotate(-90 37 37)"/>
+                </svg>
+                <div class="ring-ct"><div class="ring-v">130</div><div class="ring-u">分钟</div></div>
+              </div>
+              <div class="ring-lbl">专注时长</div>
+            </div>
+            <div class="ring-item">
+              <div class="ring-box">
+                <svg width="74" height="74" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#7B6FF0" stroke-width="5" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="75.4" transform="rotate(-90 37 37)"/>
+                </svg>
+                <div class="ring-ct"><div class="ring-v">60%</div><div class="ring-u">月进度</div></div>
+              </div>
+              <div class="ring-lbl">月目标</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-inner" style="padding:0;">
+
+          <div class="highlight-glass">
+            <div class="hl-tag"><span>🏆</span> 本周最大突破</div>
+            <div class="hl-body">你第一次完成了「联系潜在客户」，从 0 到 1 是最难的那步</div>
+          </div>
+
+          <div class="wg-card">
+            <div class="wg-top"><div class="wg-name">🎨 副业启动</div><div class="wg-ct">4 / 7 天</div></div>
+            <div class="pc-track"><div class="pc-fill rose" style="width:57%"></div></div>
+          </div>
+          <div class="wg-card">
+            <div class="wg-top"><div class="wg-name">💪 规律运动</div><div class="wg-ct">3 / 7 天</div></div>
+            <div class="pc-track"><div class="pc-fill green" style="width:43%"></div></div>
+          </div>
+
+          <!-- Letter-style, not "AI insight" -->
+          <div class="letter-card">
+            <div class="letter-from"><div class="letter-from-dot"></div>本周观察</div>
+            <div class="letter-body">
+              你<strong>周三和周四</strong>连续两周容易跳过。下周试试把提醒改到<strong>午休 12:30</strong>——用碎片时间，比等晚上更稳。<br><br>
+              「超棒」占你这周心情的 40%，越来越找到节奏了 💪
+            </div>
+          </div>
+
+          <button class="btn-main" style="background:var(--ink);margin-top:4px;">分享本周成绩</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-lbl">首页</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div><div class="tab-lbl">复盘</div></div>
+      <div class="tab on"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10" stroke="var(--rose)"/><line x1="12" y1="20" x2="12" y2="4" stroke="var(--rose)"/><line x1="6" y1="20" x2="6" y2="14" stroke="var(--rose)"/></svg></div><div class="tab-lbl" style="color:var(--rose)">报告</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div><div class="tab-lbl">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="preview-label">07 · 周报</div>
+</div>
+
+<!-- ╔═══════════════════════════════╗
+     ║  PAGE 8 · MY GOALS           ║
+     ╚═══════════════════════════════╝ -->
+<div class="preview">
+<div class="phone">
+  <div class="island"></div>
+  <div class="bg"></div>
+  <div class="screen">
+    <div class="sb"><span class="sb-time">9:41</span></div>
+    <div style="padding:6px 22px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div style="font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.3px;">我的要事</div>
+      <div style="font-size:12px;color:var(--ink-muted);font-weight:700;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);border:1px solid var(--glass-border);padding:4px 12px;border-radius:100px;">2 / 3</div>
+    </div>
+
+    <div class="scroll">
+      <div class="goals-inner">
+
+        <div class="goal-card">
+          <div class="goal-ring-w">
+            <svg width="58" height="58" viewBox="0 0 58 58">
+              <circle cx="29" cy="29" r="24" fill="none" stroke="rgba(28,26,46,.1)" stroke-width="4"/>
+              <circle cx="29" cy="29" r="24" fill="none" stroke="var(--rose)" stroke-width="4" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="52.8" transform="rotate(-90 29 29)"/>
+            </svg>
+            <div class="goal-ring-e">🎨</div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-title">副业启动</div>
+            <div class="goal-meta">第 12 天 · 第一阶段</div>
+            <div class="goal-act">今日：整理订单方向</div>
+          </div>
+          <div class="goal-chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(28,26,46,.2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+
+        <div class="goal-card">
+          <div class="goal-ring-w">
+            <svg width="58" height="58" viewBox="0 0 58 58">
+              <circle cx="29" cy="29" r="24" fill="none" stroke="rgba(28,26,46,.1)" stroke-width="4"/>
+              <circle cx="29" cy="29" r="24" fill="none" stroke="var(--green)" stroke-width="4" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="108.6" transform="rotate(-90 29 29)"/>
+            </svg>
+            <div class="goal-ring-e">💪</div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-title">规律运动</div>
+            <div class="goal-meta">第 5 天 · 习惯建立期</div>
+            <div class="goal-act green">今日：出门走 20 分钟</div>
+          </div>
+          <div class="goal-chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(28,26,46,.2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+
+        <div class="locked-card">
+          <div class="lock-ico">🔒</div>
+          <div class="lock-txt">还可以添加 1 个要事<br>最多 3 个</div>
+        </div>
+
+        <button class="add-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          添加新要事
+        </button>
+
+        <div class="pro-card-g">
+          <div class="pro-ico">⚡</div>
+          <div class="pro-info">
+            <div class="pro-nm">解锁 Pro 会员</div>
+            <div class="pro-dc">5 个目标 · 深度复盘 · 完整报告</div>
+          </div>
+          <div class="pro-tag">29元/月</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-lbl">首页</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div><div class="tab-lbl">复盘</div></div>
+      <div class="tab"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-lbl">报告</div></div>
+      <div class="tab on"><div class="tab-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" fill="var(--rose-light)"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div><div class="tab-lbl" style="color:var(--rose)">目标</div></div>
+    </div>
+  </div>
+</div>
+<div class="preview-label">08 · 我的目标</div>
+</div>
+
+<script>
+  // Confetti
+  (function(){
+    const c = document.getElementById('conf');
+    const cls = ['#E8724A','#7B6FF0','#5BA87C','#FFD4C2','#C8DFF0','#E8DCF0','#F5DDD0'];
+    for(let i=0;i<40;i++){
+      const p = document.createElement('div');
+      p.className = 'cp';
+      const s = 5 + Math.random()*7;
+      p.style.cssText = [
+        `left:${Math.random()*100}%`,
+        `top:${Math.random()*-5}%`,
+        `width:${s}px`,`height:${s}px`,
+        `background:${cls[Math.floor(Math.random()*cls.length)]}`,
+        `border-radius:${Math.random()>.5?'50%':'2px'}`,
+        `animation-duration:${2.5+Math.random()*2}s`,
+        `animation-delay:${Math.random()*1.2}s`
+      ].join(';');
+      c.appendChild(p);
+    }
+  })();
+
+  // Chip toggle
+  document.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      ch.closest('.chips-wrap').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+      ch.classList.add('on');
+    });
+  });
+
+  // Option card toggle
+  document.querySelectorAll('.opt-card').forEach(o=>{
+    o.addEventListener('click',()=>{
+      o.closest('.option-cards').querySelectorAll('.opt-card').forEach(x=>x.classList.remove('on'));
+      o.classList.add('on');
+    });
+  });
+
+  // Mood toggle
+  document.querySelectorAll('.mood-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      b.closest('.mood-row').querySelectorAll('.mood-btn').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    });
+  });
+
+  // Diag opt toggle
+  document.querySelectorAll('.diag-opt').forEach(d=>{
+    d.addEventListener('click',()=>{
+      d.closest('.diag-opts').querySelectorAll('.diag-opt').forEach(x=>x.classList.remove('on'));
+      d.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>

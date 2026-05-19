@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>要事优先 · 小程序原型</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #FAF7F2;
+      --navy: #1A2744;
+      --navy-mid: #2A3F6A;
+      --orange: #F4845F;
+      --orange-dark: #E86B3A;
+      --orange-light: #FFF0EB;
+      --orange-mid: #FFD4C2;
+      --green: #8BAF8E;
+      --green-dark: #6B9F6E;
+      --green-light: #EDF5EE;
+      --gray: #8B8B9A;
+      --border: #EDE8E0;
+      --white: #FFFFFF;
+      --text-muted: #AEAEBF;
+      --shadow-sm: 0 2px 12px rgba(26,39,68,0.06);
+      --shadow-md: 0 4px 24px rgba(26,39,68,0.10);
+      --shadow-card: 0 2px 16px rgba(26,39,68,0.07);
+      --r-sm: 12px;
+      --r-md: 18px;
+      --r-lg: 24px;
+      --r-xl: 32px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+      background: #D8CFC4;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding: 40px 20px;
+    }
+
+    /* Page label for desktop preview */
+    .page-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-label {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6B5F52;
+      letter-spacing: 0.3px;
+    }
+
+    /* Phone shell */
+    .phone {
+      width: 375px;
+      height: 812px;
+      background: var(--cream);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.08),
+        0 4px 12px rgba(0,0,0,0.1),
+        0 20px 60px rgba(0,0,0,0.2),
+        inset 0 0 0 1px rgba(255,255,255,0.6);
+      flex-shrink: 0;
+    }
+
+    /* Notch */
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #111;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 44px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 6px;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .status-time { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .status-time.light { color: rgba(255,255,255,0.9); }
+
+    .status-icons { display: flex; gap: 5px; align-items: center; }
+
+    /* All pages */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      overflow: hidden;
+    }
+
+    /* Scrollable inner */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    /* ========== BOTTOM TAB BAR ========== */
+    .tab-bar {
+      height: 82px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .tab-icon-wrap {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab-text {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .tab-item.on .tab-text { color: var(--orange); }
+
+    /* ========== BACK BUTTON ========== */
+    .back-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    /* ========================================
+       PAGE 1: ONBOARDING
+    ======================================== */
+    .ob-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 26px 32px;
+      overflow-y: auto;
+    }
+
+    .ob-plant {
+      text-align: center;
+      margin: 8px 0 28px;
+    }
+
+    .ob-title {
+      font-size: 25px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.4;
+      margin-bottom: 7px;
+    }
+
+    .ob-sub {
+      font-size: 15px;
+      color: var(--gray);
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .goal-textarea {
+      width: 100%;
+      height: 110px;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      font-size: 15.5px;
+      font-family: inherit;
+      color: var(--navy);
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.65;
+    }
+    .goal-textarea:focus { border-color: var(--orange); }
+    .goal-textarea::placeholder { color: var(--text-muted); }
+
+    .cat-label {
+      font-size: 12.5px;
+      color: var(--gray);
+      margin: 18px 0 10px;
+      font-weight: 500;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .chip {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--navy);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.18s;
+    }
+    .chip:hover, .chip.active {
+      background: var(--orange-light);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .btn-primary {
+      width: 100%;
+      height: 56px;
+      background: var(--orange);
+      color: var(--white);
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 6px 20px rgba(244,132,95,0.38);
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: auto;
+    }
+    .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(244,132,95,0.3); }
+
+    /* ========================================
+       PAGE 2: AI CHAT ONBOARDING
+    ======================================== */
+    .chat-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .ai-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F4845F, #E86B3A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(244,132,95,0.3);
+    }
+
+    .chat-top-info h3 { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .chat-top-info p { font-size: 12px; color: var(--green-dark); font-weight: 500; }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .messages-area::-webkit-scrollbar { display: none; }
+
+    .msg { max-width: 80%; display: flex; flex-direction: column; gap: 3px; }
+    .msg.ai { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .msg.ai .bubble {
+      background: var(--white);
+      color: var(--navy);
+      border-bottom-left-radius: 5px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .msg.user .bubble {
+      background: var(--navy);
+      color: var(--white);
+      border-bottom-right-radius: 5px;
+    }
+
+    .msg-time { font-size: 11px; color: var(--text-muted); padding: 0 3px; }
+    .msg.user .msg-time { text-align: right; }
+
+    .typing-wrap {
+      padding: 13px 16px;
+      background: var(--white);
+      border-radius: 20px;
+      border-bottom-left-radius: 5px;
+      width: fit-content;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: blink 1.4s ease infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%,60%,100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-5px); }
+    }
+
+    .input-bar {
+      padding: 10px 14px 26px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .text-input {
+      flex: 1;
+      height: 42px;
+      background: var(--cream);
+      border: none;
+      border-radius: 21px;
+      padding: 0 16px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      color: var(--navy);
+    }
+
+    .send-btn {
+      width: 42px; height: 42px;
+      background: var(--orange);
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(244,132,95,0.35);
+      transition: transform 0.15s;
+    }
+    .send-btn:active { transform: scale(0.9); }
+
+    /* ========================================
+       PAGE 3: HOME
+    ======================================== */
+    .home-head {
+      padding: 6px 24px 0;
+      flex-shrink: 0;
+    }
+
+    .greeting { font-size: 22px; font-weight: 700; color: var(--navy); }
+    .greeting-date { font-size: 13px; color: var(--gray); margin-top: 1px; }
+
+    .stats-pill {
+      margin-top: 12px;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stats-icon-box {
+      width: 30px; height: 30px;
+      background: var(--orange-light);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+
+    .stats-txt { font-size: 13px; color: var(--navy); font-weight: 500; }
+    .stats-txt b { color: var(--orange); font-weight: 700; }
+
+    .home-scroll-inner {
+      padding: 14px 22px 20px;
+    }
+
+    /* Hero task card */
+    .hero-card {
+      background: linear-gradient(140deg, #F4845F 0%, #E05C2E 100%);
+      border-radius: var(--r-lg);
+      padding: 22px 22px 20px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 36px rgba(244,132,95,0.38);
+      cursor: pointer;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 140px; height: 140px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      bottom: -50px; right: 10px;
+      width: 100px; height: 100px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 100px;
+      padding: 4px 11px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.9);
+      font-weight: 600;
+      margin-bottom: 13px;
+    }
+
+    .hero-goal-name { font-size: 12.5px; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-weight: 500; }
+    .hero-action { font-size: 19px; font-weight: 700; color: #fff; line-height: 1.42; margin-bottom: 14px; }
+
+    .hero-meta {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.78);
+      font-weight: 500;
+    }
+
+    .hero-btns { display: flex; gap: 10px; }
+
+    .btn-start {
+      flex: 1;
+      height: 46px;
+      background: var(--white);
+      color: var(--orange);
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-start:active { transform: scale(0.97); }
+
+    .btn-skip {
+      height: 46px;
+      padding: 0 18px;
+      background: rgba(255,255,255,0.13);
+      color: rgba(255,255,255,0.88);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .sec-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    /* Progress cards */
+    .prog-card {
+      background: var(--white);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .prog-card:active { transform: scale(0.985); }
+
+    .prog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .prog-goal-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .prog-days-badge {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      background: var(--cream);
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 600;
+    }
+
+    .prog-track {
+      height: 7px;
+      background: var(--cream);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 7px;
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+      transition: width 0.5s ease;
+    }
+    .prog-fill.green-fill { background: linear-gradient(90deg, var(--green), var(--green-dark)); }
+
+    .prog-foot {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .prog-pct { color: var(--orange); font-weight: 700; }
+    .prog-pct.green-pct { color: var(--green-dark); }
+
+    .ai-btn {
+      width: 100%;
+      height: 52px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 15px;
+      color: var(--navy);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      margin-top: 4px;
+    }
+    .ai-btn:hover { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+
+    /* ========================================
+       PAGE 4: FOCUS TIMER
+    ======================================== */
+    .focus-screen {
+      background: var(--navy) !important;
+    }
+
+    .focus-nav {
+      padding: 10px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .focus-back { color: rgba(255,255,255,0.55); font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .focus-heading { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); }
+
+    .focus-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 30px 40px;
+    }
+
+    .timer-wrap {
+      position: relative;
+      width: 232px;
+      height: 232px;
+      margin-bottom: 44px;
+    }
+
+    .breath-ring {
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,132,95,0.12) 0%, transparent 70%);
+      animation: breathe 3.5s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    .timer-svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .timer-track {
+      fill: none;
+      stroke: rgba(255,255,255,0.07);
+      stroke-width: 5;
+    }
+
+    .timer-progress {
+      fill: none;
+      stroke: var(--orange);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 659.73;
+      stroke-dashoffset: 164.9;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-digits { font-size: 54px; font-weight: 700; color: #fff; letter-spacing: -1.5px; line-height: 1; }
+    .timer-sub { font-size: 12.5px; color: rgba(255,255,255,0.4); margin-top: 7px; font-weight: 500; }
+
+    .focus-task-area { text-align: center; max-width: 260px; margin-bottom: 54px; }
+    .focus-task-label { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; margin-bottom: 9px; }
+    .focus-task-text { font-size: 17px; color: rgba(255,255,255,0.88); line-height: 1.55; font-weight: 500; }
+
+    .focus-btns { display: flex; gap: 14px; width: 100%; max-width: 270px; }
+
+    .btn-pause {
+      flex: 1; height: 52px;
+      background: rgba(255,255,255,0.09);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-md);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+    }
+
+    .btn-end-early {
+      height: 52px; padding: 0 18px;
+      background: transparent; border: none;
+      color: rgba(255,255,255,0.38);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* ========================================
+       PAGE 5: COMPLETE
+    ======================================== */
+    .confetti-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .confetti-p {
+      position: absolute;
+      border-radius: 2px;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(900px) rotate(540deg); opacity: 0; }
+    }
+
+    .complete-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 28px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .big-emoji {
+      font-size: 76px;
+      margin-bottom: 18px;
+      animation: pop-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .complete-title { font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 7px; }
+    .complete-sub { font-size: 15px; color: var(--gray); margin-bottom: 28px; }
+
+    .streak-pill {
+      background: linear-gradient(130deg, #FF9A3C, #F4845F);
+      border-radius: var(--r-md);
+      padding: 14px 26px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 6px 22px rgba(244,132,95,0.32);
+    }
+
+    .streak-pill-icon { font-size: 28px; }
+    .streak-num { font-size: 23px; font-weight: 700; color: #fff; line-height: 1; }
+    .streak-lbl { font-size: 12px; color: rgba(255,255,255,0.78); font-weight: 500; margin-top: 2px; }
+
+    .mood-section { width: 100%; margin-bottom: 24px; }
+    .mood-q { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+
+    .mood-row { display: flex; gap: 10px; justify-content: center; }
+
+    .mood-btn {
+      width: 70px; height: 70px;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: var(--r-md);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+    }
+    .mood-btn:hover, .mood-btn.picked {
+      border-color: var(--orange);
+      background: var(--orange-light);
+      transform: translateY(-3px);
+    }
+    .mood-e { font-size: 22px; }
+    .mood-t { font-size: 10px; color: var(--gray); font-weight: 600; }
+
+    .tomorrow-pill {
+      width: 100%;
+      background: var(--green-light);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      text-align: left;
+      margin-bottom: 16px;
+      border: 1px solid rgba(139,175,142,0.28);
+    }
+    .tomorrow-lbl { font-size: 11.5px; color: var(--green-dark); font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .tomorrow-txt { font-size: 14px; color: var(--navy); font-weight: 600; }
+
+    .share-btn-outline {
+      width: 100%;
+      height: 50px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 15px;
+      color: var(--navy);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.18s;
+      margin-bottom: 10px;
+    }
+    .share-btn-outline:hover { border-color: var(--orange); background: var(--orange-light); }
+
+    /* ========================================
+       PAGE 6: AI COACH
+    ======================================== */
+    .coach-header {
+      padding: 8px 22px 14px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .coach-title { font-size: 20px; font-weight: 700; color: var(--navy); }
+    .coach-sub { font-size: 13px; color: var(--gray); margin-top: 2px; }
+
+    .quick-row {
+      padding: 11px 14px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .quick-row::-webkit-scrollbar { display: none; }
+
+    .quick-chip {
+      white-space: nowrap;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 14px;
+      font-size: 13px;
+      color: var(--navy);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      flex-shrink: 0;
+      transition: all 0.18s;
+    }
+    .quick-chip:hover { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+
+    /* ========================================
+       PAGE 7: WEEKLY REPORT
+    ======================================== */
+    .report-scroll { padding: 14px 20px 24px; }
+
+    .report-hero {
+      background: linear-gradient(140deg, var(--navy), #2A3F6A);
+      border-radius: var(--r-lg);
+      padding: 22px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    .report-week-label { font-size: 12.5px; color: rgba(255,255,255,0.55); font-weight: 500; margin-bottom: 3px; }
+    .report-headline { font-size: 21px; font-weight: 700; margin-bottom: 22px; }
+
+    .rings-row { display: flex; gap: 18px; }
+
+    .ring-item { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+    .ring-item .ring-label { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 500; }
+
+    .ring-box {
+      position: relative;
+      width: 74px; height: 74px;
+    }
+    .ring-box svg { transform: rotate(-90deg); }
+
+    .ring-center-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-val { font-size: 16px; font-weight: 700; color: #fff; line-height: 1; }
+    .ring-unit { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+
+    .insight-card {
+      background: var(--white);
+      border-radius: var(--r-md);
+      padding: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .insight-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+    .insight-icon-box {
+      width: 34px; height: 34px;
+      background: var(--orange-light);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .insight-title-txt { font-size: 14px; font-weight: 700; color: var(--navy); }
+    .insight-body { font-size: 14px; color: var(--gray); line-height: 1.75; }
+    .insight-body strong { color: var(--navy); font-weight: 700; }
+
+    .highlight-card {
+      background: linear-gradient(135deg, #FFF7F4, #FFF0EB);
+      border-radius: var(--r-md);
+      padding: 18px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(244,132,95,0.18);
+    }
+
+    .highlight-tag { font-size: 11px; color: var(--orange); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .highlight-body { font-size: 15px; font-weight: 600; color: var(--navy); line-height: 1.55; }
+
+    .weekly-goal-row {
+      background: var(--white);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .wg-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+    .wg-name { font-size: 14px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 7px; }
+    .wg-count { font-size: 12.5px; color: var(--text-muted); font-weight: 600; }
+
+    /* ========================================
+       PAGE 8: MY GOALS
+    ======================================== */
+    .goals-inner { padding: 14px 20px 24px; }
+
+    .goal-card {
+      background: var(--white);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .goal-card:active { transform: scale(0.985); }
+
+    .goal-ring-wrap {
+      position: relative;
+      width: 58px; height: 58px;
+      flex-shrink: 0;
+    }
+    .goal-ring-wrap svg { transform: rotate(-90deg); }
+
+    .goal-ring-emoji {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .goal-info { flex: 1; }
+    .goal-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .goal-meta-txt { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .goal-action-preview { font-size: 12.5px; color: var(--orange); font-weight: 600; }
+    .goal-action-preview.green { color: var(--green-dark); }
+
+    .goal-arrow { flex-shrink: 0; }
+
+    .locked-slot {
+      background: var(--cream);
+      border: 2px dashed var(--border);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0.65;
+    }
+
+    .locked-icon-box {
+      width: 58px; height: 58px;
+      background: var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .locked-txt { font-size: 13.5px; color: var(--text-muted); font-weight: 500; line-height: 1.5; }
+
+    .add-goal-btn {
+      width: 100%;
+      height: 54px;
+      background: var(--white);
+      border: 2px dashed var(--border);
+      border-radius: var(--r-md);
+      font-size: 15px;
+      color: var(--gray);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+    .add-goal-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+
+    .pro-card {
+      background: linear-gradient(140deg, var(--navy), #344E80);
+      border-radius: var(--r-md);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .pro-card:active { transform: scale(0.985); }
+
+    .pro-card-icon { font-size: 30px; }
+    .pro-info { flex: 1; }
+    .pro-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .pro-desc { font-size: 12px; color: rgba(255,255,255,0.6); }
+    .pro-badge { background: var(--orange); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 100px; white-space: nowrap; }
+
+    /* ========== UTILITY ========== */
+    .divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
+
+    /* SVG icons */
+    svg.ic { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     PAGE 1: ONBOARDING
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--navy)">
+            <rect x="0" y="4" width="3" height="8" rx="1"/>
+            <rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/>
+            <rect x="9" y="0" width="3" height="12" rx="1"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.25"/>
+          </svg>
+          <svg width="17" height="12" viewBox="0 0 22 12" fill="none">
+            <rect x="0.5" y="0.5" width="18" height="11" rx="2" stroke="var(--navy)" stroke-width="1.5"/>
+            <rect x="2" y="2" width="12" height="8" rx="1" fill="var(--navy)"/>
+            <path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--navy)"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ob-body">
+        <!-- Plant SVG -->
+        <div class="ob-plant">
+          <svg width="112" height="112" viewBox="0 0 112 112" fill="none">
+            <circle cx="56" cy="56" r="50" fill="#FFF0EB"/>
+            <!-- Pot -->
+            <rect x="38" y="76" width="36" height="22" rx="5" fill="#C67B5C"/>
+            <rect x="36" y="73" width="40" height="7" rx="3.5" fill="#A85A35"/>
+            <!-- Soil -->
+            <ellipse cx="56" cy="76" rx="17" ry="3.5" fill="#5A3010" opacity="0.7"/>
+            <!-- Main stem -->
+            <path d="M56 75 Q56 62 56 50" stroke="#5A8A3C" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Left leaf -->
+            <path d="M56 68 C46 57 30 60 33 70 C36 80 56 73 56 68Z" fill="#7BB85A"/>
+            <!-- Leaf vein left -->
+            <path d="M56 68 C50 64 40 65 37 68" stroke="#5A8A3C" stroke-width="1" opacity="0.5"/>
+            <!-- Right leaf -->
+            <path d="M56 60 C66 49 82 52 79 62 C76 72 56 66 56 60Z" fill="#8BAF8E"/>
+            <!-- Leaf vein right -->
+            <path d="M56 60 C62 56 73 56 76 60" stroke="#5A8A3C" stroke-width="1" opacity="0.5"/>
+            <!-- Top leaf -->
+            <path d="M56 50 C51 40 40 39 42 48 C44 57 56 53 56 50Z" fill="#6BA84A"/>
+            <!-- Sparkle dots -->
+            <circle cx="85" cy="32" r="3" fill="#F4845F" opacity="0.55"/>
+            <circle cx="28" cy="38" r="2" fill="#F4845F" opacity="0.4"/>
+            <circle cx="88" cy="55" r="2" fill="#8BAF8E" opacity="0.5"/>
+            <circle cx="22" cy="62" r="2.5" fill="#F4845F" opacity="0.3"/>
+          </svg>
+        </div>
+
+        <h1 class="ob-title">你有什么一直想做，<br>但一直没动的事？</h1>
+        <p class="ob-sub">不用很完整，随便说说</p>
+
+        <textarea class="goal-textarea" placeholder="比如：我想开始健身 / 我要把副业做起来 / 我一直想学日语..."></textarea>
+
+        <p class="cat-label">或者从这里开始：</p>
+        <div class="chips-row">
+          <div class="chip active">💼 职场</div>
+          <div class="chip">💪 健康</div>
+          <div class="chip">📚 学习</div>
+          <div class="chip">💰 财务</div>
+          <div class="chip">🎨 创意</div>
+          <div class="chip">❤️ 关系</div>
+        </div>
+
+        <button class="btn-primary">开始 →</button>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">01 · 告诉我你的要事</div>
+</div>
+
+<!-- ============================================================
+     PAGE 2: AI ONBOARDING CHAT
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--navy)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/></svg>
+        </div>
+      </div>
+
+      <div class="chat-top">
+        <div class="back-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+        <div class="ai-avatar">🌱</div>
+        <div class="chat-top-info">
+          <h3>要事 AI</h3>
+          <p>● 在线中</p>
+        </div>
+      </div>
+
+      <div class="messages-area" style="flex:1;">
+        <div class="msg ai">
+          <div class="bubble">你好！我看到你想<strong>「开始健身」</strong>——这件事想了多久了？😄</div>
+          <div class="msg-time">9:41</div>
+        </div>
+        <div class="msg user">
+          <div class="bubble">大概有半年了吧，哈哈</div>
+          <div class="msg-time">9:41</div>
+        </div>
+        <div class="msg ai">
+          <div class="bubble">半年了，说明你是真的想做这件事 💪<br><br>现在卡在哪里？是不知道怎么开始，还是总被其他事打断？</div>
+          <div class="msg-time">9:42</div>
+        </div>
+        <div class="msg user">
+          <div class="bubble">总感觉没时间，下班就累了</div>
+          <div class="msg-time">9:42</div>
+        </div>
+        <div class="msg ai">
+          <div class="bubble">这是最真实的感受，我懂。<br><br>好，我来帮你找时间。你一天里什么时候有 <strong>20 分钟</strong>相对不被打扰？早上？午休？还是别的？</div>
+          <div class="msg-time">9:42</div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="msg ai">
+          <div class="typing-wrap">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <input class="text-input" type="text" placeholder="说说你的情况...">
+        <button class="send-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">02 · AI 了解你的目标</div>
+</div>
+
+<!-- ============================================================
+     PAGE 3: HOME
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--navy)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.25"/></svg>
+          <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x="0.5" y="0.5" width="18" height="11" rx="2" stroke="var(--navy)" stroke-width="1.5"/><rect x="2" y="2" width="12" height="8" rx="1" fill="var(--navy)"/><path d="M20 4v4a2 2 0 0 0 0-4z" fill="var(--navy)"/></svg>
+        </div>
+      </div>
+
+      <div class="home-head">
+        <div class="greeting">早上好，李凯 👋</div>
+        <div class="greeting-date">2026年5月19日 · 星期二</div>
+        <div class="stats-pill">
+          <div class="stats-icon-box">🛡️</div>
+          <div class="stats-txt">本周已守护 <b>4次</b> · 共 <b>110 分钟</b></div>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="home-scroll-inner">
+
+          <!-- Hero card -->
+          <div class="hero-card">
+            <div class="hero-tag">📌 今日要事</div>
+            <div class="hero-goal-name">副业启动 · 第 12 天</div>
+            <div class="hero-action">整理 3 个可以接的<br>设计订单方向</div>
+            <div class="hero-meta">
+              <div class="hero-meta-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                预计 25 分钟
+              </div>
+              <div class="hero-meta-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 6v6l4 2"/></svg>
+                今晚 8:30
+              </div>
+            </div>
+            <div class="hero-btns">
+              <button class="btn-start">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--orange)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                开始专注
+              </button>
+              <button class="btn-skip">今天不行</button>
+            </div>
+          </div>
+
+          <div class="sec-title">我的要事进展</div>
+
+          <div class="prog-card">
+            <div class="prog-head">
+              <div class="prog-goal-name"><span>🎨</span> 副业启动</div>
+              <div class="prog-days-badge">第 12 天</div>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:65%"></div>
+            </div>
+            <div class="prog-foot">
+              <span>第一阶段：建立接单能力</span>
+              <span class="prog-pct">65%</span>
+            </div>
+          </div>
+
+          <div class="prog-card">
+            <div class="prog-head">
+              <div class="prog-goal-name"><span>💪</span> 规律运动</div>
+              <div class="prog-days-badge">第 5 天</div>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill green-fill" style="width:28%"></div>
+            </div>
+            <div class="prog-foot">
+              <span>建立出门走路习惯</span>
+              <span class="prog-pct green-pct">28%</span>
+            </div>
+          </div>
+
+          <button class="ai-btn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            和 AI 聊聊进展
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item on">
+          <div class="tab-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="var(--orange-light)"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="tab-text" style="color:var(--orange)">首页</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="tab-text">AI教练</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ic"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="tab-text">周报</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ic"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg>
+          </div>
+          <div class="tab-text">我的</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">03 · 首页（核心）</div>
+</div>
+
+<!-- ============================================================
+     PAGE 4: FOCUS TIMER
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch" style="background:#1A2744;border-bottom:1px solid rgba(255,255,255,0.06)"></div>
+    <div class="screen focus-screen">
+      <div class="status-bar">
+        <span class="status-time light">9:41</span>
+        <div class="status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="rgba(255,255,255,0.7)"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 22 12" fill="none"><rect x="0.5" y="0.5" width="18" height="11" rx="2" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/><rect x="2" y="2" width="13" height="8" rx="1" fill="rgba(255,255,255,0.7)"/></svg>
+        </div>
+      </div>
+
+      <div class="focus-nav">
+        <div class="focus-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          返回
+        </div>
+        <div class="focus-heading">专注中 🎯</div>
+        <div style="width:48px"></div>
+      </div>
+
+      <div class="focus-body">
+        <div class="timer-wrap">
+          <div class="breath-ring"></div>
+          <svg class="timer-svg" viewBox="0 0 232 232" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="timer-track" cx="116" cy="116" r="105"/>
+            <circle class="timer-progress" cx="116" cy="116" r="105"
+              stroke-dasharray="659.73"
+              stroke-dashoffset="165"/>
+          </svg>
+          <div class="timer-inner">
+            <div class="timer-digits">24:38</div>
+            <div class="timer-sub">剩余时间</div>
+          </div>
+        </div>
+
+        <div class="focus-task-area">
+          <div class="focus-task-label">当前任务</div>
+          <div class="focus-task-text">整理 3 个可以接的设计订单方向</div>
+        </div>
+
+        <div class="focus-btns">
+          <button class="btn-pause">暂停</button>
+          <button class="btn-end-early">提前结束</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">04 · 专注模式（深色）</div>
+</div>
+
+<!-- ============================================================
+     PAGE 5: TASK COMPLETE
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">10:06</span>
+      </div>
+
+      <!-- Confetti decoration -->
+      <div class="confetti-layer" id="confetti"></div>
+
+      <div class="complete-body">
+        <div class="big-emoji">🎉</div>
+        <div class="complete-title">完成了！第 12 天</div>
+        <div class="complete-sub">你又守住了今天的要事</div>
+
+        <div class="streak-pill">
+          <div class="streak-pill-icon">🔥</div>
+          <div>
+            <div class="streak-num">连续 5 天</div>
+            <div class="streak-lbl">要事守护中</div>
+          </div>
+        </div>
+
+        <div class="mood-section">
+          <div class="mood-q">今天感觉怎么样？</div>
+          <div class="mood-row">
+            <button class="mood-btn"><span class="mood-e">😤</span><span class="mood-t">很难</span></button>
+            <button class="mood-btn"><span class="mood-e">😐</span><span class="mood-t">一般</span></button>
+            <button class="mood-btn picked"><span class="mood-e">😊</span><span class="mood-t">还好</span></button>
+            <button class="mood-btn"><span class="mood-e">🚀</span><span class="mood-t">超棒</span></button>
+          </div>
+        </div>
+
+        <div class="tomorrow-pill">
+          <div class="tomorrow-lbl">明天继续</div>
+          <div class="tomorrow-txt">联系 2 个潜在客户，发设计作品集</div>
+        </div>
+
+        <button class="share-btn-outline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          分享今天的进展
+        </button>
+
+        <button class="btn-primary" style="background:var(--navy);box-shadow:none;">回到首页</button>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">05 · 完成庆祝</div>
+</div>
+
+<!-- ============================================================
+     PAGE 6: AI COACH
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+      </div>
+
+      <div class="coach-header">
+        <div class="coach-title">AI 教练 🌱</div>
+        <div class="coach-sub">有什么想聊的，随时说</div>
+      </div>
+
+      <div class="quick-row">
+        <button class="quick-chip">今天没完成</button>
+        <button class="quick-chip">卡住了</button>
+        <button class="quick-chip">调整目标</button>
+        <button class="quick-chip">聊聊进展</button>
+      </div>
+
+      <div class="messages-area scroll-area" style="flex:1;">
+        <div class="msg ai">
+          <div class="bubble">你好，李凯！今天完成了，干得很好 💪<br><br>有什么想聊的吗？卡在哪里、有新想法，都可以说说。</div>
+          <div class="msg-time">今天</div>
+        </div>
+        <div class="msg user">
+          <div class="bubble">我发现我总是快完成的时候开始拖延</div>
+          <div class="msg-time">刚刚</div>
+        </div>
+        <div class="msg ai">
+          <div class="bubble">这个叫「完成前拖延」，挺常见的。<br><br>通常是两种原因，你觉得自己是哪种？<br><br>① 怕完成后被评价（完美主义）<br>② 完成了就没借口了，有点不安全感</div>
+          <div class="msg-time">刚刚</div>
+        </div>
+        <div class="msg user">
+          <div class="bubble">好像有点两个都有</div>
+          <div class="msg-time">刚刚</div>
+        </div>
+        <div class="msg ai">
+          <div class="bubble">那先做一件事：<strong>今天只需要「完成到 80%」就发出去</strong>，不追求完美。<br><br>能接受吗？</div>
+          <div class="msg-time">刚刚</div>
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <input class="text-input" type="text" placeholder="说说你的情况...">
+        <button class="send-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="tab-text">首页</div>
+        </div>
+        <div class="tab-item on">
+          <div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="var(--orange-light)"/></svg></div>
+          <div class="tab-text" style="color:var(--orange)">AI教练</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="tab-text">周报</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div>
+          <div class="tab-text">我的</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">06 · AI 教练对话</div>
+</div>
+
+<!-- ============================================================
+     PAGE 7: WEEKLY REPORT
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+      </div>
+
+      <div style="padding: 6px 24px 0; flex-shrink:0;">
+        <div style="font-size:22px;font-weight:700;color:var(--navy);">本周报告</div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="report-scroll">
+
+          <!-- Header hero with rings -->
+          <div class="report-hero">
+            <div class="report-week-label">5月12日 — 5月18日</div>
+            <div class="report-headline">你这周守住了 5 天 🏆</div>
+
+            <div class="rings-row">
+              <div class="ring-item">
+                <div class="ring-box">
+                  <svg width="74" height="74" viewBox="0 0 74 74">
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"/>
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="#F4845F" stroke-width="5" stroke-linecap="round"
+                      stroke-dasharray="188.5" stroke-dashoffset="53.9" transform="rotate(-90 37 37)"/>
+                  </svg>
+                  <div class="ring-center-text">
+                    <div class="ring-val">5/7</div>
+                    <div class="ring-unit">天</div>
+                  </div>
+                </div>
+                <div class="ring-label">完成天数</div>
+              </div>
+              <div class="ring-item">
+                <div class="ring-box">
+                  <svg width="74" height="74" viewBox="0 0 74 74">
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"/>
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="#8BAF8E" stroke-width="5" stroke-linecap="round"
+                      stroke-dasharray="188.5" stroke-dashoffset="62.8" transform="rotate(-90 37 37)"/>
+                  </svg>
+                  <div class="ring-center-text">
+                    <div class="ring-val">130</div>
+                    <div class="ring-unit">分钟</div>
+                  </div>
+                </div>
+                <div class="ring-label">专注时长</div>
+              </div>
+              <div class="ring-item">
+                <div class="ring-box">
+                  <svg width="74" height="74" viewBox="0 0 74 74">
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"/>
+                    <circle cx="37" cy="37" r="30" fill="none" stroke="#F4845F" stroke-width="5" stroke-linecap="round"
+                      stroke-dasharray="188.5" stroke-dashoffset="75.4" transform="rotate(-90 37 37)"/>
+                  </svg>
+                  <div class="ring-center-text">
+                    <div class="ring-val">60%</div>
+                    <div class="ring-unit">进度</div>
+                  </div>
+                </div>
+                <div class="ring-label">月目标</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec-title">各目标进展</div>
+
+          <div class="weekly-goal-row">
+            <div class="wg-top">
+              <div class="wg-name">🎨 副业启动</div>
+              <div class="wg-count">4 / 7 天</div>
+            </div>
+            <div class="prog-track"><div class="prog-fill" style="width:57%"></div></div>
+          </div>
+          <div class="weekly-goal-row">
+            <div class="wg-top">
+              <div class="wg-name">💪 规律运动</div>
+              <div class="wg-count">3 / 7 天</div>
+            </div>
+            <div class="prog-track"><div class="prog-fill green-fill" style="width:43%"></div></div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-tag">🏆 本周最大突破</div>
+            <div class="highlight-body">你第一次完成了「联系潜在客户」这一步，从 0 到 1 是最难的一关</div>
+          </div>
+
+          <div class="insight-card">
+            <div class="insight-head">
+              <div class="insight-icon-box">🌱</div>
+              <div class="insight-title-txt">AI 观察</div>
+            </div>
+            <div class="insight-body">
+              你<strong>周三、周四</strong>的完成率连续两周偏低。下周我把提醒从晚 8 点改到<strong>午休 12:30</strong>，用碎片时间代替？<br><br>
+              另外，你「超棒」感受占本周 40%，越来越找到节奏了 💪
+            </div>
+          </div>
+
+          <button class="btn-primary" style="background:var(--navy);box-shadow:none;margin-top:4px;">分享本周成绩</button>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-text">首页</div></div>
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="tab-text">AI教练</div></div>
+        <div class="tab-item on"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-text" style="color:var(--orange)">周报</div></div>
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div><div class="tab-text">我的</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">07 · 周报分析</div>
+</div>
+
+<!-- ============================================================
+     PAGE 8: MY GOALS
+============================================================ -->
+<div class="page-preview">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+      </div>
+
+      <div style="padding:6px 24px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div style="font-size:22px;font-weight:700;color:var(--navy);">我的要事</div>
+        <div style="font-size:13px;color:var(--text-muted);font-weight:600;background:var(--cream);padding:4px 12px;border-radius:100px;">2 / 3 个</div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="goals-inner">
+
+          <!-- Goal 1 -->
+          <div class="goal-card">
+            <div class="goal-ring-wrap">
+              <svg width="58" height="58" viewBox="0 0 58 58">
+                <circle cx="29" cy="29" r="24" fill="none" stroke="var(--border)" stroke-width="4"/>
+                <circle cx="29" cy="29" r="24" fill="none" stroke="var(--orange)" stroke-width="4" stroke-linecap="round"
+                  stroke-dasharray="150.8" stroke-dashoffset="52.8" transform="rotate(-90 29 29)"/>
+              </svg>
+              <div class="goal-ring-emoji">🎨</div>
+            </div>
+            <div class="goal-info">
+              <div class="goal-title">副业启动</div>
+              <div class="goal-meta-txt">第 12 天 · 第一阶段进行中</div>
+              <div class="goal-action-preview">今日：整理 3 个设计订单方向</div>
+            </div>
+            <div class="goal-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- Goal 2 -->
+          <div class="goal-card">
+            <div class="goal-ring-wrap">
+              <svg width="58" height="58" viewBox="0 0 58 58">
+                <circle cx="29" cy="29" r="24" fill="none" stroke="var(--border)" stroke-width="4"/>
+                <circle cx="29" cy="29" r="24" fill="none" stroke="var(--green)" stroke-width="4" stroke-linecap="round"
+                  stroke-dasharray="150.8" stroke-dashoffset="108.6" transform="rotate(-90 29 29)"/>
+              </svg>
+              <div class="goal-ring-emoji">💪</div>
+            </div>
+            <div class="goal-info">
+              <div class="goal-title">规律运动</div>
+              <div class="goal-meta-txt">第 5 天 · 习惯建立期</div>
+              <div class="goal-action-preview green">今日：出门走 20 分钟</div>
+            </div>
+            <div class="goal-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <!-- Locked slot -->
+          <div class="locked-slot">
+            <div class="locked-icon-box">🔒</div>
+            <div class="locked-txt">还可以添加 1 个要事<br>总共最多 3 个</div>
+          </div>
+
+          <button class="add-goal-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加新要事
+          </button>
+
+          <!-- Pro upsell -->
+          <div class="pro-card">
+            <div class="pro-card-icon">⚡</div>
+            <div class="pro-info">
+              <div class="pro-name">解锁 Pro 会员</div>
+              <div class="pro-desc">5 个目标 · 深度 AI 教练 · 拖延诊断 · 周报</div>
+            </div>
+            <div class="pro-badge">29元/月</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="tab-text">首页</div></div>
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="tab-text">AI教练</div></div>
+        <div class="tab-item"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="tab-text">周报</div></div>
+        <div class="tab-item on"><div class="tab-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" fill="var(--orange-light)"/><path d="M4 20v-1a8 8 0 0 1 16 0v1"/></svg></div><div class="tab-text" style="color:var(--orange)">我的</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-label">08 · 我的目标管理</div>
+</div>
+
+<script>
+  // Spawn confetti on page load for page 5
+  (function() {
+    const container = document.getElementById('confetti');
+    const colors = ['#F4845F','#8BAF8E','#1A2744','#FFD4C2','#6BA84A','#FFA07A','#87CEEB'];
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-p';
+      const size = 5 + Math.random() * 7;
+      p.style.cssText = [
+        `left:${Math.random()*100}%`,
+        `top:${Math.random() * -5}%`,
+        `width:${size}px`,
+        `height:${size}px`,
+        `background:${colors[Math.floor(Math.random()*colors.length)]}`,
+        `border-radius:${Math.random()>0.5?'50%':'2px'}`,
+        `animation-duration:${2.5+Math.random()*2}s`,
+        `animation-delay:${Math.random()*1.2}s`
+      ].join(';');
+      container.appendChild(p);
+    }
+  })();
+
+  // Chip toggle
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+
+  // Mood toggle
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.mood-btn').forEach(x => x.classList.remove('picked'));
+      b.classList.add('picked');
+    });
+  });
+</script>
+</body>
+</html>
