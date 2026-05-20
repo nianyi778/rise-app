@@ -330,6 +330,21 @@
     .hb-start { flex:1; height:46px; background:#fff; border:none; border-radius:var(--r-sm); font-size:15px; font-weight:800; color:var(--ink); cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px; }
     .hb-skip { height:46px; padding:0 18px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:var(--r-sm); color:rgba(255,255,255,0.78); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
 
+    /* ── Hero: day progress ring (absolute top-right) ── */
+    .hero-day-ring { position:absolute; top:20px; right:20px; }
+    .hdr-wrap { position:relative; width:54px; height:54px; }
+    .hdr-wrap > svg { transform:rotate(-90deg); position:absolute; inset:0; }
+    .hdr-mid { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; }
+    .hdr-n { font-size:15px; font-weight:900; color:#fff; line-height:1; }
+    .hdr-l { font-size:8px; color:rgba(255,255,255,0.35); font-weight:800; letter-spacing:.2px; }
+
+    /* ── Hero: AI observation note ── */
+    .hero-ai-note { border-top:1px solid rgba(255,255,255,0.08); padding-top:14px; margin-bottom:16px; display:flex; align-items:flex-start; gap:8px; }
+    .han-dot { width:5px; height:5px; border-radius:50%; background:var(--green); margin-top:5px; flex-shrink:0; animation:hanDot 2.8s ease-in-out infinite; }
+    @keyframes hanDot { 0%,100%{opacity:.6} 50%{opacity:1} }
+    .han-txt { font-size:12.5px; color:rgba(255,255,255,0.46); line-height:1.65; font-weight:500; }
+    .han-txt b { color:rgba(255,255,255,0.78); font-weight:700; }
+
     .sec-h { font-size:15px; font-weight:800; color:var(--ink); margin-bottom:12px; letter-spacing:-.1px; }
 
     .pc { background:var(--glass); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid var(--gborder); border-radius:var(--r-lg); padding:16px 18px; margin-bottom:10px; box-shadow:var(--sg); }
@@ -382,6 +397,16 @@
     .fbtns { display:flex; gap:12px; width:100%; max-width:264px; }
     .fb-pause { flex:1; height:52px; background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.17); border-radius:var(--r-md); color:#fff; font-size:16px; font-weight:800; cursor:pointer; font-family:inherit; }
     .fb-end { height:52px; padding:0 18px; background:transparent; border:none; color:rgba(255,255,255,0.34); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+    /* ── Focus: phase chip ── */
+    .focus-phase-chip { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:100px; padding:6px 14px; font-size:12px; color:rgba(255,255,255,0.40); font-weight:700; margin-bottom:24px; }
+    .fpc-dot { width:5px; height:5px; border-radius:50%; background:var(--rose); flex-shrink:0; animation:fpcPulse 2s ease-in-out infinite; }
+    @keyframes fpcPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+    /* ── Focus: task glass card ── */
+    .focus-task-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:var(--r-md); padding:16px 24px; margin-top:-12px; margin-bottom:40px; text-align:center; max-width:290px; }
+    .ftc-lbl { font-size:10px; color:rgba(255,255,255,0.24); text-transform:uppercase; letter-spacing:1.5px; font-weight:800; margin-bottom:8px; }
+    .ftc-txt { font-size:17px; color:rgba(255,255,255,0.86); font-weight:700; line-height:1.55; }
 
     /* ═══════════════════════════
        PAGE 5 · COMPLETE
@@ -821,6 +846,21 @@
       <div class="hs">
         <!-- Hero task card -->
         <div class="hero">
+          <!-- Day progress ring (top-right) -->
+          <div class="hero-day-ring">
+            <div class="hdr-wrap">
+              <svg viewBox="0 0 54 54" fill="none">
+                <circle cx="27" cy="27" r="22" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+                <circle cx="27" cy="27" r="22" stroke="rgba(255,255,255,0.75)" stroke-width="3"
+                  stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="59"/>
+              </svg>
+              <div class="hdr-mid">
+                <div class="hdr-n">12</div>
+                <div class="hdr-l">天</div>
+              </div>
+            </div>
+          </div>
+
           <div class="hero-tag">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"><use href="#ico-pin"/></svg>
             今日要事
@@ -836,6 +876,11 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="2.2"><use href="#ico-bell"/></svg>
               今晚 8:30
             </div>
+          </div>
+          <!-- AI nudge note -->
+          <div class="hero-ai-note">
+            <div class="han-dot"></div>
+            <div class="han-txt">你<b>周二晚间</b>完成率最高。今晚 8:30，Rise 会提醒你。</div>
           </div>
           <div class="hero-btns">
             <button class="hb-start">
@@ -929,19 +974,31 @@
       <div style="width:44px"></div>
     </div>
     <div class="focus-body">
-      <div class="rw">
+      <!-- Phase label chip -->
+      <div class="focus-phase-chip">
+        <div class="fpc-dot"></div>
+        副业启动 · 第一阶段 · 第 12 天
+      </div>
+
+      <div class="rw" style="width:260px;height:260px;">
         <div class="breath"></div>
-        <svg class="rsvg" viewBox="0 0 238 238" fill="none">
-          <circle class="rt" cx="119" cy="119" r="106"/>
-          <circle class="ra" cx="119" cy="119" r="106"/>
+        <svg class="rsvg" viewBox="0 0 260 260" fill="none">
+          <circle class="rt" cx="130" cy="130" r="116"/>
+          <circle class="ra" cx="130" cy="130" r="116"
+            style="stroke-dasharray:729;stroke-dashoffset:182;"/>
         </svg>
         <div class="rmid">
           <div class="rtime">24:38</div>
           <div class="rsub">剩余时间</div>
         </div>
       </div>
-      <div class="ft-lbl">当前任务</div>
-      <div class="ft-txt">整理 3 个可以接的<br>设计订单方向</div>
+
+      <!-- Task card replacing bare labels -->
+      <div class="focus-task-card">
+        <div class="ftc-lbl">当前任务</div>
+        <div class="ftc-txt">整理 3 个可以接的<br>设计订单方向</div>
+      </div>
+
       <div class="fbtns">
         <button class="fb-pause">暂停</button>
         <button class="fb-end">提前结束</button>

@@ -20,12 +20,12 @@ interface WeeklyInsight {
   nextWeekDirection: string;
 }
 
-function getWeekBounds(): { monday: string; sunday: string } {
+function getWeekBounds(offset = 0): { monday: string; sunday: string } {
   const now = new Date();
   const day = now.getDay(); // 0=Sun
   const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(now);
-  monday.setDate(now.getDate() + diff);
+  monday.setDate(now.getDate() + diff - offset * 7);
   monday.setHours(0, 0, 0, 0);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
@@ -38,9 +38,10 @@ function getWeekBounds(): { monday: string; sunday: string } {
 export const reportRouter = new Hono<AppEnv>();
 reportRouter.use('/*', authMiddleware);
 
-// GET /report/weekly
+// GET /report/weekly?offset=0
 reportRouter.get('/weekly', async (c) => {
   const userId = c.get('userId');
+  const offset = Math.max(0, parseInt(c.req.query('offset') ?? '0', 10));
 
   const [userResult, goalResult] = await Promise.all([
     query<User>(`SELECT * FROM users WHERE id = $1 LIMIT 1`, [userId]),
@@ -54,7 +55,7 @@ reportRouter.get('/weekly', async (c) => {
 
   const user = userResult.rows[0] as User;
   const goal = goalResult.rows[0] as Goal;
-  const { monday, sunday } = getWeekBounds();
+  const { monday, sunday } = getWeekBounds(offset);
 
   const rows = await query<SessionRow>(
     `SELECT s.date::text, s.action, s.status, s.actual_min,

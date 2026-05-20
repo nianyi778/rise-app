@@ -1,4 +1,4 @@
-import { getCheckins, sendChatMessage, streamChatMessage } from '../../api/index'
+import { getTodayCheckin, streamChatMessage } from '../../api/index'
 import { store } from '../../store/index'
 import { friendlyDate } from '../../utils/index'
 import type { Checkin, ChatMessage } from '../../types/index'
@@ -10,13 +10,13 @@ interface ReflectionData {
   inputText: string
   replying: boolean
   streamingText: string
-  suggestions: string[]
   scrollToId: string
   pageEntered: boolean
 }
 
 Page<ReflectionData, AnyObject>({
   _streamTask: null as WechatMiniprogram.RequestTask | null,
+  _greeted: false as boolean,
 
   data: {
     dateLabel: '',
@@ -25,78 +25,104 @@ Page<ReflectionData, AnyObject>({
     inputText: '',
     replying: false,
     streamingText: '',
-    suggestions: [],
     scrollToId: '',
     pageEntered: false,
   },
 
   async onShow() {
     const today = new Date().toISOString().slice(0, 10)
-    this.setData({
-      dateLabel: friendlyDate(today),
-      pageEntered: false,
-    })
+    this.setData({ dateLabel: friendlyDate(today), pageEntered: false })
 
-    await this.loadCheckin()
+    const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
+    tabBar?.setData({ selected: 1 })
+
+    await this._loadCheckin()
     setTimeout(() => this.setData({ pageEntered: true }), 50)
   },
 
-  async loadCheckin() {
-    const { currentGoal } = store.getState()
-    if (!currentGoal) return
+  async _loadCheckin() {
+    const storeState = store.getState()
+    const today = new Date().toISOString().slice(0, 10)
 
-    try {
-      const checkins = await getCheckins(currentGoal._id, 1)
-      const today = new Date().toISOString().slice(0, 10)
-      const todayCheckin = checkins.find(c => c.date === today) || null
+    // First try store (populated after user completes a session)
+    let todayCheckin: Checkin | null =
+      storeState.recentCheckins.find(c => c.date === today) ?? null
 
-      if (todayCheckin) {
-        const history = store.getState().chatHistory
-        const aiGreeting = history.length === 0
-          ? await this._openAIChat(todayCheckin)
-          : null
-        this.setData({
-          todayCheckin,
-          chatMessages: aiGreeting
-            ? [{ role: 'assistant', content: aiGreeting, timestamp: Date.now() }]
-            : history,
-        })
+    // Fall back to API
+    if (!todayCheckin) {
+      try {
+        const checkins = await getTodayCheckin()
+        todayCheckin = checkins.find(c => c.date === today) ?? null
+      } catch {
+        // ignore network errors, show empty state
       }
-    } catch (e) {
-      console.error('加载打卡失败', e)
+    }
+
+    this.setData({ todayCheckin })
+
+    if (todayCheckin && !this._greeted) {
+      this._greeted = true
+      const existing = storeState.chatHistory
+      if (existing.length > 0) {
+        this.setData({ chatMessages: existing })
+      } else {
+        this._openAIGreeting(todayCheckin)
+      }
     }
   },
 
-  async _openAIChat(checkin: Checkin): Promise<string> {
+  _openAIGreeting(checkin: Checkin) {
     const { currentGoal, todaySession } = store.getState()
-    if (!todaySession || !currentGoal) return ''
+    if (!currentGoal) return
 
-    const systemMsg: ChatMessage = {
+    const initMsg: ChatMessage = {
       role: 'user',
-      content: `我刚完成了今天的目标：${todaySession.action}。心情是：${checkin.mood}。${checkin.note ? '备注：' + checkin.note : ''}`,
+      content: `我刚完成了今天的目标：${todaySession?.action ?? '今日任务'}。心情：${checkin.mood}。${checkin.note ? '备注：' + checkin.note : ''}`,
       timestamp: Date.now(),
     }
-    try {
-      const reply = await sendChatMessage(todaySession._id, [systemMsg])
-      store.pushChatMessage(systemMsg)
-      const replyMsg: ChatMessage = { role: 'assistant', content: reply, timestamp: Date.now() }
-      store.pushChatMessage(replyMsg)
-      return reply
-    } catch (_) {
-      return '今天完成了，很棒！感觉怎么样？'
-    }
+
+    this.setData({ replying: true, streamingText: '' })
+
+    let accText = ''
+    this._streamTask = streamChatMessage(
+      currentGoal._id,
+      checkin._id,
+      [initMsg],
+      (delta) => {
+        accText += delta
+        this.setData({ streamingText: accText })
+      },
+      () => {
+        const replyMsg: ChatMessage = { role: 'assistant', content: accText, timestamp: Date.now() }
+        store.pushChatMessage(initMsg)
+        store.pushChatMessage(replyMsg)
+        this.setData({
+          chatMessages: [replyMsg],
+          streamingText: '',
+          replying: false,
+        })
+        this._scrollToBottom()
+      },
+      () => {
+        this.setData({
+          chatMessages: [{ role: 'assistant', content: '今天完成了，很棒！感觉怎么样？', timestamp: Date.now() }],
+          streamingText: '',
+          replying: false,
+        })
+      },
+    )
   },
 
   onInputChange(e: WechatMiniprogram.Input) {
     this.setData({ inputText: e.detail.value })
   },
 
-  async onSend() {
+  onSend() {
     const { inputText, chatMessages } = this.data
     if (!inputText.trim() || this.data.replying) return
 
-    const { todaySession } = store.getState()
-    if (!todaySession) return
+    const { currentGoal, todaySession } = store.getState()
+    if (!currentGoal) return
 
     const userMsg: ChatMessage = {
       role: 'user',
@@ -104,7 +130,9 @@ Page<ReflectionData, AnyObject>({
       timestamp: Date.now(),
     }
 
+    const allHistory = [...store.getState().chatHistory, userMsg]
     store.pushChatMessage(userMsg)
+
     this.setData({
       chatMessages: [...chatMessages, userMsg],
       inputText: '',
@@ -113,18 +141,18 @@ Page<ReflectionData, AnyObject>({
     })
     this._scrollToBottom()
 
-    const allMessages = store.getState().chatHistory
-
-    // streaming 回复
+    let accText = ''
     this._streamTask = streamChatMessage(
-      todaySession._id,
-      allMessages,
+      currentGoal._id,
+      todaySession?._id ?? undefined,
+      allHistory,
       (delta) => {
-        this.setData({ streamingText: this.data.streamingText + delta })
+        accText += delta
+        this.setData({ streamingText: accText })
+        this._scrollToBottom()
       },
       () => {
-        const finalText = this.data.streamingText
-        const replyMsg: ChatMessage = { role: 'assistant', content: finalText, timestamp: Date.now() }
+        const replyMsg: ChatMessage = { role: 'assistant', content: accText, timestamp: Date.now() }
         store.pushChatMessage(replyMsg)
         this.setData({
           chatMessages: [...this.data.chatMessages, replyMsg],
@@ -134,15 +162,11 @@ Page<ReflectionData, AnyObject>({
         this._scrollToBottom()
       },
       (err) => {
-        console.error('streaming 失败', err)
+        console.error('[reflection] stream error', err)
         this.setData({ replying: false, streamingText: '' })
+        wx.showToast({ title: '回复失败，请重试', icon: 'none' })
       },
     )
-  },
-
-  onUseSuggestion(e: WechatMiniprogram.TouchEvent) {
-    const text = e.currentTarget.dataset['text'] as string
-    this.setData({ inputText: text })
   },
 
   goHome() {

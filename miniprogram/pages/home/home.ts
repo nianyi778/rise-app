@@ -46,8 +46,9 @@ Page<HomeData, AnyObject>({
   },
 
   async onShow() {
+    const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
+    tabBar?.setData({ selected: 0 })
     await this.loadData()
-    // 触发英雄卡入场动画
     setTimeout(() => this.setData({ pageEntered: true }), 50)
   },
 

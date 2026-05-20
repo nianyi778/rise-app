@@ -220,6 +220,11 @@ export async function updateGoalStatus(goalId: string, status: GoalStatus): Prom
 
 // ── Checkin ───────────────────────────────────────────────────────────────────
 
+export async function getTodayCheckin(): Promise<Checkin[]> {
+  const res = await request<{ checkins: Array<RawCheckin & { action: string }> }>('/checkin/today', 'GET')
+  return res.checkins.map(mapCheckin)
+}
+
 export async function submitCheckin(payload: CheckinPayload): Promise<CheckinResult> {
   const res = await request<{ checkin: RawCheckin; streakDay: number; isNewRecord: boolean }>(
     '/checkin', 'POST', payload as unknown as Record<string, unknown>,
@@ -265,13 +270,13 @@ export function streamChatMessage(
 
 // ── Weekly Report ─────────────────────────────────────────────────────────────
 
-export async function getWeeklyReport(): Promise<WeeklyReport> {
+export async function getWeeklyReport(weekOffset = 0): Promise<WeeklyReport> {
   const res = await request<{
     week: { monday: string; sunday: string; completedDays: number; totalDays: number }
     goal: RawGoal
     sessions: Array<{ date: string; action: string; status: string; actual_min: number | null; mood: string | null; note: string | null }>
     insight: { breakthrough: string; observation: string; nextWeekDirection: string }
-  }>('/report/weekly', 'GET')
+  }>(`/report/weekly${weekOffset > 0 ? `?offset=${weekOffset}` : ''}`, 'GET')
 
   const totalFocusMin = res.sessions.reduce((s, r) => s + (r.actual_min ?? 0), 0)
   const dailyData = res.sessions.map(s => ({

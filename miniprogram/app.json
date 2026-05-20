@@ -10,6 +10,7 @@
     "pages/goals/goals"
   ],
   "tabBar": {
+    "custom": true,
     "color": "#A09BB8",
     "selectedColor": "#E06844",
     "backgroundColor": "rgba(242,224,210,0.72)",

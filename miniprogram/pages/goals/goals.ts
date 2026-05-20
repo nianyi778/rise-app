@@ -74,6 +74,8 @@ Page<GoalsData, AnyObject>({
 
   async onShow() {
     this.setData({ pageEntered: false })
+    const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
+    tabBar?.setData({ selected: 3 })
     await this.loadGoals()
     setTimeout(() => this.setData({ pageEntered: true }), 50)
   },

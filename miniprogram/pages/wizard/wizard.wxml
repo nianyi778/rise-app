@@ -1,4 +1,4 @@
-<!-- PAGE 02 · WIZARD — AI 对话向导（卡片式，3步） -->
+<!-- PAGE 02 · WIZARD — AI 卡片向导（3步） -->
 <view class="wrap">
   <view class="bg-mesh">
     <view class="bg-glow-rose"/>
@@ -8,91 +8,118 @@
   <view class="screen">
     <view class="status-bar"/>
 
-    <!-- 顶部导航 -->
+    <!-- 导航栏 -->
     <view class="nav">
       <view class="back-btn" bindtap="onBack">
-        <text class="back-arrow">←</text>
-        <text class="back-label">{{step === 1 ? '返回' : '上一步'}}</text>
+        <view class="back-chevron"/>
+        <text class="back-label">{{currentCard === 0 ? '返回' : '上一步'}}</text>
       </view>
       <text class="goal-hint">{{goalTitle}}</text>
     </view>
 
-    <view class="body">
-      <!-- 进度条 -->
+    <!-- 进度条 -->
+    <view class="prog-wrap">
       <view class="prog-bar">
-        <view wx:for="{{[1,2,3]}}" wx:key="*this"
-          class="pb {{item < step ? 'done' : (item === step ? 'cur' : '')}}"/>
+        <view class="pb {{currentCard === 0 ? 'cur' : 'done'}}"/>
+        <view class="pb {{currentCard === 1 ? 'cur' : (currentCard > 1 ? 'done' : '')}}"/>
+        <view class="pb {{currentCard === 2 ? 'cur' : ''}}"/>
       </view>
+      <text class="step-badge">{{currentCard + 1}} / 3</text>
+    </view>
 
-      <!-- STEP 1：最大阻力 -->
-      <block wx:if="{{step === 1}}">
-        <text class="step-label">STEP 1 / 3</text>
-        <text class="q">阻止你的<br/>最大原因是？</text>
-        <text class="hint">了解阻力，Rise 才能帮你设计真正有效的行动</text>
-        <view class="opt-list">
-          <view
-            wx:for="{{blockers}}" wx:key="key"
-            class="opt {{selectedBlocker === item.key ? 'on' : ''}}"
-            bindtap="onSelectBlocker"
-            data-key="{{item.key}}"
-          >
-            <view class="opt-body">
+    <!-- 滑动卡片区域 -->
+    <view class="wiz-slider-wrap">
+      <view class="wiz-slider" style="{{sliderStyle}}">
+
+        <!-- ─── Card 0: 时间确认 ─── -->
+        <view class="wiz-card">
+          <text class="wiz-q">{{q0}}</text>
+          <view class="opt-list">
+            <view
+              wx:for="{{durations}}" wx:key="key"
+              class="opt-card {{duration === item.key ? 'on' : ''}}"
+              bindtap="onDurationTap" data-key="{{item.key}}"
+            >
               <text class="opt-t">{{item.label}}</text>
-              <text class="opt-d">{{item.desc}}</text>
+              <view class="opt-check {{duration === item.key ? 'show' : ''}}"/>
+            </view>
+          </view>
+          <view class="ai-bubble">
+            <view class="ai-avatar"><text class="ai-r">R</text></view>
+            <view class="ai-msg">
+              <text class="ai-text">了解你的目标背景，帮我更好地为你设计节奏</text>
             </view>
           </view>
         </view>
-      </block>
 
-      <!-- STEP 2：专注时段 -->
-      <block wx:if="{{step === 2}}">
-        <text class="step-label">STEP 2 / 3</text>
-        <text class="q">你通常什么时候<br/>有零散时间？</text>
-        <text class="hint">Rise 会在这个时段提醒你，找到真正属于你的 25 分钟</text>
-        <view class="opt-list">
-          <view
-            wx:for="{{times}}" wx:key="key"
-            class="opt {{selectedTime === item.key ? 'on' : ''}}"
-            bindtap="onSelectTime"
-            data-key="{{item.key}}"
-          >
-            <view class="opt-body">
-              <text class="opt-t">{{item.label}}</text>
-              <text class="opt-d">{{item.desc}}</text>
+        <!-- ─── Card 1: AI 分析 + 时间选择 ─── -->
+        <view class="wiz-card">
+          <text class="wiz-q">{{q1}}</text>
+          <view class="ai-bubble ai-bubble-mb">
+            <view class="ai-avatar"><text class="ai-r">R</text></view>
+            <view class="ai-msg">
+              <text class="ai-text">{{aiAnalysis}}</text>
+            </view>
+          </view>
+          <text class="sec-label">选择你的专注时段</text>
+          <view class="opt-list">
+            <view
+              wx:for="{{times}}" wx:key="key"
+              class="opt-card {{selectedTime === item.key ? 'on' : ''}}"
+              bindtap="onTimeTap" data-key="{{item.key}}"
+            >
+              <view class="opt-text-wrap">
+                <text class="opt-t">{{item.label}}</text>
+                <text class="opt-d">{{item.desc}}</text>
+              </view>
+              <view class="opt-check {{selectedTime === item.key ? 'show' : ''}}"/>
             </view>
           </view>
         </view>
-      </block>
 
-      <!-- STEP 3：每日时长 -->
-      <block wx:if="{{step === 3}}">
-        <text class="step-label">STEP 3 / 3</text>
-        <text class="q">每天能给这个目标<br/>多少时间？</text>
-        <text class="hint">从小开始，坚持比完美更重要。Rise 推荐 25 分钟</text>
-        <view class="opt-list">
-          <view
-            wx:for="{{minutes}}" wx:key="key"
-            class="opt {{selectedMinutes === item.key ? 'on' : ''}}"
-            bindtap="onSelectMinutes"
-            data-key="{{item.key}}"
-          >
-            <view class="opt-body">
-              <text class="opt-t">{{item.label}}</text>
-              <text class="opt-d">{{item.desc}}</text>
+        <!-- ─── Card 2: 方案确认 ─── -->
+        <view class="wiz-card">
+          <text class="wiz-q">{{q2}}</text>
+          <view class="plan-card">
+            <text class="plan-goal">{{goalTitle}}</text>
+            <view class="plan-sep"/>
+            <text class="plan-stage-lbl">第一阶段</text>
+            <text class="plan-phase">{{phaseName}}</text>
+            <view class="plan-footer-row">
+              <view class="plan-min-chip">
+                <text class="plan-min-n">{{dailyMinutes}}</text>
+                <text class="plan-min-u"> 分钟 / 天</text>
+              </view>
+            </view>
+          </view>
+          <view class="ai-bubble ai-bubble-mt">
+            <view class="ai-avatar"><text class="ai-r">R</text></view>
+            <view class="ai-msg">
+              <text class="ai-text">{{encouragement}}</text>
             </view>
           </view>
         </view>
-      </block>
+
+      </view>
     </view>
 
     <!-- 底部按钮 -->
     <view class="footer">
       <button
-        class="btn btn-rose next-btn {{submitting ? 'loading' : ''}}"
+        wx:if="{{currentCard < 2}}"
+        class="btn btn-rose"
         bindtap="onNext"
+      >
+        <text>下一步</text>
+      </button>
+      <button
+        wx:else
+        class="btn btn-rose {{submitting ? 'loading' : ''}}"
+        bindtap="onConfirm"
         disabled="{{submitting}}"
       >
-        <text>{{step < 3 ? '下一步' : (submitting ? 'AI 分析中…' : '生成我的计划')}}</text>
+        <view wx:if="{{submitting}}" class="btn-loader"/>
+        <text wx:else>开始守护</text>
       </button>
     </view>
   </view>
