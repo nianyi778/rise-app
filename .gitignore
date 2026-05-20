@@ -1,5 +1,22 @@
-.DS_Store
+# Dependencies
 node_modules/
-*.log
+backend/node_modules/
+
+# Build output
+backend/dist/
+miniprogram/miniprogram_npm/
+
+# Environment secrets
+backend/.env
 .env
-miniprogram/project.private.config.json
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
