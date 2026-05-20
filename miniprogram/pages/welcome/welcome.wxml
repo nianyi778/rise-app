@@ -8,166 +8,175 @@
   <view class="screen">
     <view class="status-bar"/>
 
-    <!-- 步骤容器：translateX 水平滑动切换 -->
-    <view class="steps-outer">
-      <view
-        class="steps-row"
-        style="transform: translateX({{currentStep * -33.3334}}%); transition: transform 380ms cubic-bezier(0.22,1,0.36,1);"
-      >
+    <!-- ── STEP 0：目标输入 + 分类 ── -->
+    <scroll-view
+      class="step-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      wx:if="{{currentStep === 0}}"
+    >
+      <view class="step-inner">
 
-        <!-- ── STEP 0：目标输入 + 分类 ── -->
-        <view class="step-panel">
-          <scroll-view class="step-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-
-            <!-- 品牌 -->
-            <view class="brand s0-brand">
-              <view class="brand-icon">
-                <svg width="32" height="32" viewBox="0 0 36 36">
-                  <line x1="5" y1="26" x2="31" y2="26" stroke="#1B1928" stroke-width="2.5" stroke-linecap="round"/>
-                  <circle cx="18" cy="24" r="4.5" fill="#E06844"/>
-                  <line x1="18" y1="10" x2="18" y2="14" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
-                  <line x1="26.5" y1="13" x2="24" y2="15.5" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
-                  <line x1="9.5" y1="13" x2="12" y2="15.5" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
-                  <line x1="29.5" y1="22" x2="25.5" y2="22" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
-                  <line x1="6.5" y1="22" x2="10.5" y2="22" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
-                </svg>
-              </view>
-              <text class="brand-name">Rise</text>
-            </view>
-
-            <text class="h1 s0-h1">你有什么一直想做，<br/>但一直没动的事？</text>
-            <text class="sub s0-sub">不用很完整，随便说说</text>
-
-            <view class="field-wrap s0-field {{inputFocused ? 'focused' : ''}}">
-              <textarea
-                class="field"
-                placeholder="比如：我想开始运动 / 我要把副业启动 / 我一直想学日语..."
-                placeholder-class="field-ph"
-                value="{{rawInput}}"
-                bindinput="onInputChange"
-                bindfocus="onInputFocus"
-                bindblur="onInputBlur"
-                maxlength="200"
-                auto-height
-              />
-            </view>
-
-            <text class="div-label s0-chips-label">— 或者从这里选一个方向 —</text>
-            <view class="chips s0-chips">
-              <view
-                wx:for="{{categories}}"
-                wx:key="key"
-                class="cat-chip {{selectedCategory === item.key ? 'on' : ''}}"
-                bindtap="onCategoryTap"
-                data-key="{{item.key}}"
-              >
-                <text class="cat-chip-label">{{item.label}}</text>
-              </view>
-            </view>
-
-            <button class="btn btn-rose s0-btn" bindtap="onNext">开始</button>
-
-          </scroll-view>
+        <!-- 品牌 -->
+        <view class="brand s0-brand">
+          <view class="brand-icon">
+            <svg width="32" height="32" viewBox="0 0 36 36">
+              <line x1="5" y1="26" x2="31" y2="26" stroke="#1B1928" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="18" cy="24" r="4.5" fill="#E06844"/>
+              <line x1="18" y1="10" x2="18" y2="14" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="26.5" y1="13" x2="24" y2="15.5" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="9.5" y1="13" x2="12" y2="15.5" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="29.5" y1="22" x2="25.5" y2="22" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="6.5" y1="22" x2="10.5" y2="22" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </view>
+          <text class="brand-name">Rise</text>
         </view>
 
-        <!-- ── STEP 1：阻力确认 ── -->
-        <view class="step-panel">
-          <scroll-view class="step-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+        <text class="h1 s0-h1">你有什么一直想做，但一直没动的事？</text>
+        <text class="sub s0-sub">不用很完整，随便说说</text>
 
-            <text class="wiz-step">问题 2 / 3</text>
-            <text class="wiz-q">现在最大的<br/>阻力是什么？</text>
-            <text class="wiz-hint">选一个最像你的，<br/>后面我会专门针对这个帮你</text>
-
-            <view class="opt-list">
-              <view
-                wx:for="{{blockerOptions}}"
-                wx:key="key"
-                class="opt-card {{selectedBlocker === item.key ? 'on' : ''}}"
-                bindtap="onBlockerTap"
-                data-key="{{item.key}}"
-              >
-                <view class="opt-card-body">
-                  <text class="opt-card-t">{{item.label}}</text>
-                  <text class="opt-card-d">{{item.desc}}</text>
-                </view>
-                <view class="opt-card-check {{selectedBlocker === item.key ? 'show' : ''}}">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </view>
-              </view>
-            </view>
-
-            <button class="btn btn-rose" bindtap="onNext">下一步</button>
-
-          </scroll-view>
+        <view class="field-wrap s0-field {{inputFocused ? 'focused' : ''}}">
+          <textarea
+            class="field"
+            placeholder="比如：我想开始运动 / 我要把副业启动 / 我一直想学日语..."
+            placeholder-class="field-ph"
+            value="{{rawInput}}"
+            bindinput="onInputChange"
+            bindfocus="onInputFocus"
+            bindblur="onInputBlur"
+            maxlength="200"
+            auto-height
+          />
         </view>
 
-        <!-- ── STEP 2：时间偏好 + 时长 ── -->
-        <view class="step-panel">
-          <scroll-view class="step-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-
-            <text class="wiz-step">问题 3 / 3</text>
-            <text class="wiz-q">每天什么时候<br/>有 20-30 分钟？</text>
-            <text class="wiz-hint">选一个最稳定的时段</text>
-
-            <view class="opt-list">
-              <view
-                wx:for="{{timeOptions}}"
-                wx:key="key"
-                class="opt-card {{selectedTime === item.key ? 'on' : ''}}"
-                bindtap="onTimeTap"
-                data-key="{{item.key}}"
-              >
-                <view class="opt-card-body">
-                  <text class="opt-card-t">{{item.label}}</text>
-                  <text class="opt-card-d">{{item.desc}}</text>
-                </view>
-                <view class="opt-card-check {{selectedTime === item.key ? 'show' : ''}}">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </view>
-              </view>
-            </view>
-
-            <!-- 每日时长 Slider -->
-            <view class="slider-wrap">
-              <view class="slider-header">
-                <text class="slider-label">每日投入时长</text>
-                <text class="slider-val">{{dailyMinutes}} 分钟</text>
-              </view>
-              <slider
-                min="15"
-                max="60"
-                step="5"
-                value="{{dailyMinutes}}"
-                activeColor="#E06844"
-                backgroundColor="rgba(27,25,40,0.10)"
-                block-color="#E06844"
-                block-size="22"
-                bindchange="onSliderChange"
-                bindchanging="onSliderChange"
-              />
-              <view class="slider-tips">
-                <text>15 分</text>
-                <text>60 分</text>
-              </view>
-            </view>
-
-            <button
-              class="btn btn-rose {{submitting ? 'btn-loading' : ''}}"
-              bindtap="onSubmit"
-              disabled="{{submitting}}"
-            >
-              <text>{{submitting ? 'AI 正在为你规划...' : '生成我的计划'}}</text>
-            </button>
-
-          </scroll-view>
+        <text class="div-label s0-chips-label">— 或者从这里选一个方向 —</text>
+        <view class="chips s0-chips">
+          <view
+            wx:for="{{categories}}"
+            wx:key="key"
+            class="cat-chip {{selectedCategory === item.key ? 'on' : ''}}"
+            bindtap="onCategoryTap"
+            data-key="{{item.key}}"
+          >
+            <text class="cat-chip-label">{{item.label}}</text>
+          </view>
         </view>
 
+        <button class="btn btn-rose s0-btn" bindtap="onNext">开始</button>
+
+        <view class="safe-bottom"/>
       </view>
-    </view>
+    </scroll-view>
+
+    <!-- ── STEP 1：阻力确认 ── -->
+    <scroll-view
+      class="step-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      wx:elif="{{currentStep === 1}}"
+    >
+      <view class="step-inner">
+        <text class="wiz-step">问题 2 / 3</text>
+        <text class="wiz-q">现在最大的阻力是什么？</text>
+        <text class="wiz-hint">选一个最像你的，后面我会专门针对这个帮你</text>
+
+        <view class="opt-list">
+          <view
+            wx:for="{{blockerOptions}}"
+            wx:key="key"
+            class="opt-card {{selectedBlocker === item.key ? 'on' : ''}}"
+            bindtap="onBlockerTap"
+            data-key="{{item.key}}"
+          >
+            <view class="opt-card-body">
+              <text class="opt-card-t">{{item.label}}</text>
+              <text class="opt-card-d">{{item.desc}}</text>
+            </view>
+            <view class="opt-card-check {{selectedBlocker === item.key ? 'show' : ''}}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E06844" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </view>
+          </view>
+        </view>
+
+        <button class="btn btn-rose" bindtap="onNext">下一步</button>
+        <view class="safe-bottom"/>
+      </view>
+    </scroll-view>
+
+    <!-- ── STEP 2：时间偏好 + 时长 ── -->
+    <scroll-view
+      class="step-scroll"
+      scroll-y
+      enhanced
+      show-scrollbar="{{false}}"
+      wx:elif="{{currentStep === 2}}"
+    >
+      <view class="step-inner">
+        <text class="wiz-step">问题 3 / 3</text>
+        <text class="wiz-q">每天什么时候有 20-30 分钟？</text>
+        <text class="wiz-hint">选一个最稳定的时段</text>
+
+        <view class="opt-list">
+          <view
+            wx:for="{{timeOptions}}"
+            wx:key="key"
+            class="opt-card {{selectedTime === item.key ? 'on' : ''}}"
+            bindtap="onTimeTap"
+            data-key="{{item.key}}"
+          >
+            <view class="opt-card-body">
+              <text class="opt-card-t">{{item.label}}</text>
+              <text class="opt-card-d">{{item.desc}}</text>
+            </view>
+            <view class="opt-card-check {{selectedTime === item.key ? 'show' : ''}}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E06844" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </view>
+          </view>
+        </view>
+
+        <!-- 每日时长 Slider -->
+        <view class="slider-wrap">
+          <view class="slider-header">
+            <text class="slider-label">每日投入时长</text>
+            <text class="slider-val">{{dailyMinutes}} 分钟</text>
+          </view>
+          <slider
+            class="time-slider"
+            min="15"
+            max="60"
+            step="5"
+            value="{{dailyMinutes}}"
+            activeColor="#E06844"
+            backgroundColor="rgba(27,25,40,0.10)"
+            block-color="#E06844"
+            block-size="22"
+            bindchange="onSliderChange"
+            bindchanging="onSliderChange"
+          />
+          <view class="slider-tips">
+            <text>15 分</text>
+            <text>60 分</text>
+          </view>
+        </view>
+
+        <button
+          class="btn btn-rose {{submitting ? 'btn-loading' : ''}}"
+          bindtap="onSubmit"
+          disabled="{{submitting}}"
+        >
+          <text>{{submitting ? 'AI 正在为你规划...' : '生成我的计划'}}</text>
+        </button>
+
+        <view class="safe-bottom"/>
+      </view>
+    </scroll-view>
 
     <!-- 底部进度点 -->
     <view class="prog-dots">

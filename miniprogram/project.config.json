@@ -1,5 +1,5 @@
 {
-  "appid": "FILL_YOUR_APPID",
+  "appid": "wx118f56c65947d131",
   "projectname": "rise-app",
   "description": "Rise · AI 目标教练",
   "setting": {
@@ -36,10 +36,22 @@
       "outputPath": ""
     },
     "bundle": false,
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": false,
+    "compileWorklet": false,
+    "localPlugins": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
   "libVersion": "3.3.4",
   "srcMiniprogramRoot": "./",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
 }

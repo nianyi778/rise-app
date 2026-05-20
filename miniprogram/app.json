@@ -13,7 +13,7 @@
     "custom": true,
     "color": "#A09BB8",
     "selectedColor": "#E06844",
-    "backgroundColor": "rgba(242,224,210,0.72)",
+    "backgroundColor": "#F2E0D2",
     "borderStyle": "white",
     "list": [
       {
@@ -44,7 +44,7 @@
   },
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "transparent",
+    "navigationBarBackgroundColor": "#FAF7F2",
     "navigationBarTitleText": "Rise",
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom",
