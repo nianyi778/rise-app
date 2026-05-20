@@ -1,0 +1,208 @@
+<!-- PAGE 07 · REPORT — 本周要事报告 -->
+<view class="wrap">
+  <view class="bg-mesh">
+    <view class="bg-glow-rose"/>
+    <view class="bg-glow-violet"/>
+  </view>
+
+  <view class="screen">
+    <view class="status-bar"/>
+
+    <!-- 顶部 -->
+    <view class="r-nav">
+      <text class="r-nav-title">本周报告</text>
+      <view class="week-nav">
+        <view class="week-btn" bindtap="onPrevWeek">
+          <svg width="28rpx" height="28rpx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </view>
+        <text class="week-label">{{report.weekLabel || '本周'}}</text>
+        <view class="week-btn {{weekOffset <= 0 ? 'disabled' : ''}}" bindtap="onNextWeek">
+          <svg width="28rpx" height="28rpx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="rscroll" scroll-y enhanced show-scrollbar="{{false}}">
+
+      <!-- 骨架屏 -->
+      <block wx:if="{{loading}}">
+        <view class="skeleton" style="height:400rpx;border-radius:38rpx;margin:0 40rpx 32rpx;"/>
+        <view style="padding:0 40rpx">
+          <view class="skeleton" style="height:100rpx;border-radius:24rpx;margin-bottom:20rpx"/>
+          <view class="skeleton" style="height:200rpx;border-radius:24rpx;margin-bottom:20rpx;opacity:0.7"/>
+        </view>
+      </block>
+
+      <!-- 有数据 -->
+      <block wx:elif="{{report}}">
+
+        <!-- 头部深色卡 -->
+        <view class="rh-card {{pageEntered ? 'entered' : ''}}">
+          <view class="rh-glow-rose"/>
+
+          <text class="rh-w">{{report.weekLabel}}</text>
+          <text class="rh-t">你守住了 {{report.completedDays}} 天</text>
+
+          <!-- 7 天格子 -->
+          <view class="day-grid">
+            <view
+              wx:for="{{report.dailyData}}"
+              wx:key="date"
+              class="day-dot {{item.status === 'done' ? 'done' : (item.status === 'skipped' ? 'skip' : 'pending')}}"
+            >
+              <view class="day-dot-inner"/>
+              <text class="day-dot-lbl">{{item.dayShort}}</text>
+            </view>
+          </view>
+
+          <!-- 三个数据环（SVG） -->
+          <view class="rings">
+            <!-- 完成天数 -->
+            <view class="ri">
+              <view class="rbox">
+                <svg width="148rpx" height="148rpx" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#E06844" stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-dasharray="188.5"
+                    stroke-dashoffset="{{ringData.checkinDash}}"
+                    transform="rotate(-90 37 37)"/>
+                </svg>
+                <view class="rct">
+                  <text class="rv">{{report.completedDays}}/{{report.totalDays}}</text>
+                  <text class="ru">天</text>
+                </view>
+              </view>
+              <text class="rl">完成天数</text>
+            </view>
+            <!-- 专注时长 -->
+            <view class="ri">
+              <view class="rbox">
+                <svg width="148rpx" height="148rpx" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#53A47A" stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-dasharray="188.5"
+                    stroke-dashoffset="{{ringData.focusDash}}"
+                    transform="rotate(-90 37 37)"/>
+                </svg>
+                <view class="rct">
+                  <text class="rv">{{ringData.totalFocusHours}}</text>
+                  <text class="ru">小时</text>
+                </view>
+              </view>
+              <text class="rl">专注时长</text>
+            </view>
+            <!-- 最长连续 -->
+            <view class="ri">
+              <view class="rbox">
+                <svg width="148rpx" height="148rpx" viewBox="0 0 74 74">
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="5"/>
+                  <circle cx="37" cy="37" r="30" fill="none" stroke="#7468E8" stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-dasharray="188.5"
+                    stroke-dashoffset="{{ringData.streakDash}}"
+                    transform="rotate(-90 37 37)"/>
+                </svg>
+                <view class="rct">
+                  <text class="rv">{{report.streakMax}}</text>
+                  <text class="ru">天</text>
+                </view>
+              </view>
+              <text class="rl">最长连续</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="rinner">
+
+          <!-- 本周最大突破 highlight 卡 -->
+          <view class="best-card {{pageEntered ? 'entered' : ''}}">
+            <view class="best-glow"/>
+            <view class="best-tag">
+              <svg width="28rpx" height="28rpx" viewBox="0 0 24 24" fill="none" stroke="#E06844" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2h12v8a6 6 0 0 1-12 0V2z"/>
+                <path d="M6 4H3a2 2 0 0 0 0 4c.9 2 2.5 3 3 4"/>
+                <path d="M18 4h3a2 2 0 0 1 0 4c-.9 2-2.5 3-3 4"/>
+                <line x1="12" y1="16" x2="12" y2="20" stroke-linecap="round"/>
+                <line x1="8" y1="20" x2="16" y2="20" stroke-linecap="round"/>
+              </svg>
+              <text>本周最大突破</text>
+            </view>
+            <text class="best-body">{{report.highlight}}</text>
+          </view>
+
+          <!-- 每日概览 -->
+          <text class="sec-h">每日概览</text>
+          <view class="week-grid">
+            <view
+              wx:for="{{report.dailyData}}"
+              wx:key="date"
+              class="wg glass {{pageEntered ? 'entered' : ''}}"
+              style="animation-delay:{{index * 50}}ms"
+            >
+              <view class="wg-top">
+                <text class="wg-nm">{{item.date}}</text>
+                <text class="wg-ct {{item.status === 'done' ? 'done' : 'skip'}}">
+                  {{item.status === 'done' ? item.focusMin + ' 分' : (item.status === 'skipped' ? '跳过' : '—')}}
+                </text>
+              </view>
+              <view class="wg-prog" wx:if="{{item.status === 'done'}}">
+                <text class="wg-mood {{item.mood}}">
+                  {{item.mood === 'great' ? '超棒' : (item.mood === 'good' ? '不错' : (item.mood === 'ok' ? '还好' : (item.mood === 'hard' ? '有点难' : '')))}}
+                </text>
+              </view>
+              <text class="wg-action" wx:if="{{item.action}}">{{item.action}}</text>
+            </view>
+          </view>
+
+          <!-- AI 洞察卡 — --violet 色系 -->
+          <view class="ai-insight glass {{pageEntered ? 'entered' : ''}}">
+            <view class="ai-insight-tag">
+              <view class="ai-dot"/>
+              <text>Rise 本周观察</text>
+            </view>
+            <text class="ai-insight-body">{{report.aiObservation}}</text>
+          </view>
+
+          <!-- 下周方向 -->
+          <view class="next-card glass {{pageEntered ? 'entered' : ''}}" wx:if="{{report.nextWeekDirection}}">
+            <text class="next-label">下周方向</text>
+            <text class="next-body">{{report.nextWeekDirection}}</text>
+          </view>
+
+          <!-- 分享按钮 -->
+          <button class="btn btn-dark share-btn" bindtap="onShare">
+            <svg width="36rpx" height="36rpx" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <text>分享本周成绩</text>
+          </button>
+
+        </view>
+      </block>
+
+      <!-- 无数据 -->
+      <block wx:else>
+        <view class="empty-state">
+          <svg width="120rpx" height="120rpx" viewBox="0 0 24 24" fill="none" stroke="#A6A0B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:32rpx">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <text class="empty-t">本周暂无数据</text>
+          <text class="empty-s">完成几天打卡后，这里会显示你的专属周报</text>
+        </view>
+      </block>
+
+    </scroll-view>
+  </view>
+</view>

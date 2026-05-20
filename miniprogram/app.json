@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/welcome/welcome",
+    "pages/wizard/wizard",
+    "pages/home/home",
+    "pages/focus/focus",
+    "pages/complete/complete",
+    "pages/reflection/reflection",
+    "pages/report/report",
+    "pages/goals/goals"
+  ],
+  "tabBar": {
+    "color": "#A09BB8",
+    "selectedColor": "#E06844",
+    "backgroundColor": "rgba(242,224,210,0.72)",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/reflection/reflection",
+        "text": "复盘",
+        "iconPath": "assets/icons/reflect.png",
+        "selectedIconPath": "assets/icons/reflect-active.png"
+      },
+      {
+        "pagePath": "pages/report/report",
+        "text": "报告",
+        "iconPath": "assets/icons/report.png",
+        "selectedIconPath": "assets/icons/report-active.png"
+      },
+      {
+        "pagePath": "pages/goals/goals",
+        "text": "目标",
+        "iconPath": "assets/icons/goals.png",
+        "selectedIconPath": "assets/icons/goals-active.png"
+      }
+    ]
+  },
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "transparent",
+    "navigationBarTitleText": "Rise",
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom",
+    "backgroundColor": "#FAF7F2",
+    "enablePullDownRefresh": false
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

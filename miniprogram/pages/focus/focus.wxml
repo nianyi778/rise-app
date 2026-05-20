@@ -1,0 +1,61 @@
+<!-- PAGE 04 · FOCUS TIMER — 暗色专注计时 -->
+<view class="focus-page">
+
+  <!-- 顶部导航：三列布局 -->
+  <view class="focus-nav">
+    <view class="f-back" bindtap="onBack">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="rgba(255,255,255,.42)" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <text class="f-back-text">返回</text>
+    </view>
+    <text class="f-title">专注中</text>
+    <view style="width:88rpx"/>
+  </view>
+
+  <!-- 主体区域 -->
+  <view class="focus-body">
+
+    <!-- 阶段标签 chip：pulse dot + "目标 · 阶段 · 第N天" -->
+    <view class="focus-phase-chip" wx:if="{{phaseName}}">
+      <view class="fpc-dot"/>
+      <text class="fpc-text">{{goalTitle}} · {{phaseName}} · 第{{dayIndex}}天</text>
+    </view>
+
+    <!-- 圆环计时区 260×260px -->
+    <view class="ring-wrap">
+      <!-- 呼吸光晕：radial-gradient rose glow，3.6s 呼吸动画 -->
+      <view class="breath"/>
+      <!-- Canvas 2D 圆环（type="2d" 绑定新版 Canvas API） -->
+      <canvas id="timerRing" type="2d" class="timer-canvas"/>
+      <!-- 中心文字层 -->
+      <view class="ring-mid">
+        <text class="rtime">{{timeDisplay}}</text>
+        <text class="rsub">{{isPaused ? 'PAUSED' : '剩余时间'}}</text>
+      </view>
+    </view>
+
+    <!-- 当前任务毛玻璃卡片 -->
+    <view class="task-card" wx:if="{{action}}">
+      <text class="ftc-lbl">当前任务</text>
+      <text class="ftc-txt">{{action}}</text>
+    </view>
+
+    <!-- 底部控制按钮行 -->
+    <view class="fbtns">
+      <button
+        class="fb-pause"
+        hover-class="fb-hover"
+        bindtap="onTogglePause"
+      >{{isPaused ? '继续' : '暂停'}}</button>
+      <button
+        class="fb-end"
+        hover-class="fb-hover"
+        bindtap="onEarlyEnd"
+      >提前结束</button>
+    </view>
+
+  </view>
+</view>

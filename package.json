@@ -1,0 +1,21 @@
+{
+  "name": "rise-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p miniprogram/tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^3.12.3",
+    "typescript": "^5.4.5"
+  },
+  "description": "> 别让紧急的事，埋掉重要的你。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

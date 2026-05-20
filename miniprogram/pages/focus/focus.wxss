@@ -1,0 +1,214 @@
+@import '../../app.wxss';
+
+/* 覆盖全局背景，暗色主题 */
+page {
+  background: linear-gradient(155deg, #1A172C 0%, #261D3A 58%, #182030 100%);
+  min-height: 100vh;
+}
+
+.focus-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── 顶部导航 ─────────────────────────────────── */
+.focus-nav {
+  padding: 24rpx 48rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.f-back {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  color: rgba(255,255,255,0.42);
+}
+
+.f-back-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255,255,255,0.42);
+}
+
+.f-title {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: rgba(255,255,255,0.82);
+}
+
+/* ─── 主体居中 ──────────────────────────────────── */
+.focus-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 60rpx 96rpx;
+}
+
+/* ─── 阶段 chip ─────────────────────────────────── */
+.focus-phase-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 14rpx;
+  background: rgba(255,255,255,0.06);
+  border: 1rpx solid rgba(255,255,255,0.10);
+  border-radius: 100rpx;
+  padding: 12rpx 28rpx;
+  margin-bottom: 48rpx;
+}
+
+.fpc-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--rose);
+  flex-shrink: 0;
+  animation: fpcPulse 2s ease-in-out infinite;
+}
+
+.fpc-text {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.40);
+  font-weight: 700;
+}
+
+@keyframes fpcPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ─── 圆环区 260×260 逻辑像素（520rpx）────────── */
+.ring-wrap {
+  position: relative;
+  width: 520rpx;
+  height: 520rpx;
+  margin-bottom: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 呼吸光晕：rose radial glow，3.6s 缓慢呼吸 */
+.breath {
+  position: absolute;
+  inset: -40rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224,104,68,0.16) 0%, transparent 68%);
+  pointer-events: none;
+  animation: breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.09); opacity: 1; }
+}
+
+/* Canvas 铺满 ring-wrap */
+.timer-canvas {
+  position: absolute;
+  inset: 0;
+  width: 520rpx;
+  height: 520rpx;
+}
+
+/* 中心文字绝对定位层 */
+.ring-mid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.rtime {
+  font-size: 112rpx;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -4rpx;
+  line-height: 1;
+}
+
+.rsub {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.36);
+  margin-top: 18rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  text-transform: uppercase;
+}
+
+/* ─── 当前任务毛玻璃卡片 ────────────────────────── */
+.task-card {
+  background: rgba(255,255,255,0.05);
+  border: 1rpx solid rgba(255,255,255,0.09);
+  border-radius: 32rpx;
+  padding: 32rpx 48rpx;
+  margin-top: -24rpx;
+  margin-bottom: 80rpx;
+  text-align: center;
+  max-width: 580rpx;
+  width: 100%;
+}
+
+.ftc-lbl {
+  display: block;
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.24);
+  text-transform: uppercase;
+  letter-spacing: 3rpx;
+  font-weight: 800;
+  margin-bottom: 16rpx;
+}
+
+.ftc-txt {
+  font-size: 34rpx;
+  color: rgba(255,255,255,0.86);
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+/* ─── 控制按钮行 ────────────────────────────────── */
+.fbtns {
+  display: flex;
+  gap: 24rpx;
+  width: 100%;
+  max-width: 560rpx;
+  align-items: center;
+}
+
+/* 白色描边 pill 主按钮 */
+.fb-pause {
+  flex: 1;
+  height: 104rpx;
+  background: rgba(255,255,255,0.09);
+  border: 1rpx solid rgba(255,255,255,0.28);
+  border-radius: 100rpx;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+/* 次要文字按钮 */
+.fb-end {
+  height: 104rpx;
+  padding: 0 32rpx;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 100rpx;
+  color: rgba(255,255,255,0.35);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+/* 按压态：微缩 + 减淡 */
+.fb-hover {
+  transform: scale(0.96);
+  opacity: 0.85;
+}

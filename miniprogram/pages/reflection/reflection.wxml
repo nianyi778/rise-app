@@ -1,0 +1,95 @@
+<!-- PAGE 06 · REFLECTION — 复盘，日记式，Rise 观察 -->
+<view class="wrap">
+  <view class="bg-mesh">
+    <view class="bg-glow-rose"/>
+    <view class="bg-glow-violet"/>
+  </view>
+
+  <view class="screen">
+    <view class="status-bar"/>
+
+    <!-- 顶部日期标题 -->
+    <view class="jh">
+      <text class="jh-d">REFLECTION</text>
+      <text class="jh-t">{{dateLabel}}的复盘</text>
+    </view>
+
+    <!-- 未打卡状态 -->
+    <block wx:if="{{!todayCheckin}}">
+      <view class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-t">今天还没完成任务</text>
+        <text class="empty-s">完成今日专注后，这里会出现 Rise 的复盘观察</text>
+        <button class="btn btn-rose goto-btn" bindtap="goHome">去完成今日任务</button>
+      </view>
+    </block>
+
+    <!-- 已打卡，显示对话 -->
+    <block wx:else>
+      <scroll-view class="jscroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{scrollToId}}">
+        <!-- 今日信息卡 -->
+        <view class="ic glass {{pageEntered ? 'entered' : ''}}">
+          <view class="ic-tag">
+            <view class="ic-dot" style="background:var(--rose)"/>
+            <text style="color:var(--rose)">今日完成</text>
+          </view>
+          <text class="ic-body">
+            专注了 <text class="ic-highlight">{{todayCheckin.focusMin}} 分钟</text>，
+            心情 <text class="ic-highlight">{{todayCheckin.mood === 'great' ? '超棒' : (todayCheckin.mood === 'good' ? '不错' : (todayCheckin.mood === 'ok' ? '还好' : '有点难'))}}</text>
+            {{todayCheckin.note ? '· ' + todayCheckin.note : ''}}
+          </text>
+        </view>
+
+        <!-- AI 对话消息列表 -->
+        <view
+          wx:for="{{chatMessages}}"
+          wx:key="timestamp"
+          id="msg-{{index}}"
+          class="chat-bubble {{item.role === 'user' ? 'user' : 'ai'}}"
+          style="animation-delay: {{index * 60}}ms"
+        >
+          <view wx:if="{{item.role === 'assistant'}}" class="ai-avatar">
+            <text>R</text>
+          </view>
+          <view class="bubble-content {{item.role === 'user' ? 'glass' : 'glass-strong'}}">
+            <text class="bubble-text">{{item.content}}</text>
+          </view>
+        </view>
+
+        <!-- Streaming 中的气泡 -->
+        <view class="chat-bubble ai" wx:if="{{replying || streamingText}}">
+          <view class="ai-avatar"><text>R</text></view>
+          <view class="bubble-content glass-strong">
+            <text class="bubble-text">{{streamingText}}</text>
+            <view wx:if="{{replying && !streamingText}}" class="typing-dots">
+              <view class="dot"/>
+              <view class="dot"/>
+              <view class="dot"/>
+            </view>
+          </view>
+        </view>
+
+        <view id="bottom" style="height:200rpx"/>
+      </scroll-view>
+
+      <!-- 输入区（固定底部） -->
+      <view class="input-area">
+        <view class="input-wrap glass-strong">
+          <input
+            class="chat-input"
+            placeholder="回复 Rise…"
+            placeholder-class="chat-placeholder"
+            value="{{inputText}}"
+            bindinput="onInputChange"
+            confirm-type="send"
+            bindconfirm="onSend"
+            maxlength="200"
+          />
+          <button class="send-btn {{inputText ? 'active' : ''}}" bindtap="onSend">
+            <text>↑</text>
+          </button>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

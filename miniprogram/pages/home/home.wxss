@@ -1,0 +1,453 @@
+@import '../../app.wxss';
+
+/* ── 页面容器 ─────────────────────────── */
+.wrap {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── 顶部标题区（不滚动） ─────────────── */
+.hd {
+  padding: 12rpx 44rpx 0;
+  flex-shrink: 0;
+}
+
+.hd-greet {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.8rpx;
+}
+
+.hd-date {
+  display: block;
+  font-size: 26rpx;
+  color: var(--ink-soft);
+  margin-top: 4rpx;
+  font-weight: 500;
+}
+
+/* ── 守护连击 pill ────────────────────── */
+.guard-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(224,104,68,0.08);
+  border-radius: 100rpx;
+  padding: 10rpx 24rpx;
+  margin-top: 16rpx;
+}
+
+.guard-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--rose);
+  flex-shrink: 0;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.guard-txt {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--rose);
+}
+
+.guard-num {
+  font-weight: 700;
+  color: var(--rose);
+}
+
+/* ── 滚动区 ───────────────────────────── */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.hs {
+  padding: 32rpx 0 200rpx;
+}
+
+/* ── 英雄卡 ───────────────────────────── */
+.hero {
+  border-radius: 48rpx;
+  background: linear-gradient(155deg, #E06844 0%, #C4522E 100%);
+  box-shadow:
+    0 40rpx 120rpx rgba(224,104,68,0.35),
+    0 16rpx 48rpx rgba(224,104,68,0.20);
+  padding: 48rpx 44rpx 44rpx;
+  margin: 0 32rpx 36rpx;
+  position: relative;
+  overflow: visible;
+  /* 入场前状态 */
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 500ms cubic-bezier(0.22,1,0.36,1),
+              transform 500ms cubic-bezier(0.22,1,0.36,1);
+}
+
+.hero.entered {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 120ms;
+}
+
+/* ── 英雄卡装饰圆（伪元素替代） ─────────── */
+.hero-deco-tl {
+  position: absolute;
+  top: -100rpx;
+  right: -100rpx;
+  width: 340rpx;
+  height: 340rpx;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-deco-br {
+  position: absolute;
+  bottom: -80rpx;
+  left: 20rpx;
+  width: 220rpx;
+  height: 220rpx;
+  background: radial-gradient(circle, rgba(116,104,232,0.18) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ── 隐藏分享 canvas ─────────────────── */
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 750rpx;
+  height: 750rpx;
+  pointer-events: none;
+}
+
+/* ── 天数进度环（右上角绝对定位） ──────── */
+.hero-day-ring {
+  position: absolute;
+  top: 40rpx;
+  right: 40rpx;
+  width: 108rpx;
+  height: 108rpx;
+}
+
+.hdr-wrap {
+  position: relative;
+  width: 108rpx;
+  height: 108rpx;
+}
+
+.hdr-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 108rpx;
+  height: 108rpx;
+}
+
+.hdr-mid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+}
+
+.hdr-n {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.hdr-l {
+  font-size: 16rpx;
+  font-weight: 800;
+  color: rgba(255,255,255,0.50);
+  letter-spacing: 0.5rpx;
+}
+
+/* ── 标签 ─────────────────────────────── */
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255,255,255,0.10);
+  border: 1rpx solid rgba(255,255,255,0.16);
+  border-radius: 100rpx;
+  padding: 8rpx 24rpx;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: rgba(255,255,255,0.70);
+  letter-spacing: 3rpx;
+  text-transform: uppercase;
+  margin-bottom: 20rpx;
+}
+
+/* ── 目标名副文本 ─────────────────────── */
+.hero-goal-lbl {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 16rpx;
+}
+
+/* ── 今日行动（大字） ────────────────── */
+.hero-action {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.45;
+  letter-spacing: -0.4rpx;
+  margin-bottom: 32rpx;
+  padding-right: 120rpx;
+}
+
+/* ── 元信息 pills ─────────────────────── */
+.hero-meta {
+  display: flex;
+  flex-direction: row;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  margin-bottom: 32rpx;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(255,255,255,0.15);
+  border-radius: 100rpx;
+  padding: 10rpx 24rpx;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.80);
+  font-weight: 600;
+}
+
+/* ── AI 观察区 ────────────────────────── */
+.hero-ai-note {
+  border-top: 1rpx solid rgba(255,255,255,0.12);
+  padding-top: 28rpx;
+  margin-bottom: 32rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.han-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--green);
+  margin-top: 10rpx;
+  flex-shrink: 0;
+  animation: dotPulse 2.8s ease-in-out infinite;
+}
+
+.han-txt {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.65;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* ── 按钮区 ───────────────────────────── */
+.hero-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.hb-start {
+  flex: 1;
+  height: 96rpx;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 100rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  transition: transform 150ms;
+}
+
+.hb-start:active {
+  transform: scale(0.96);
+}
+
+.hb-skip {
+  width: 200rpx;
+  height: 96rpx;
+  background: transparent;
+  border: 3rpx solid rgba(255,255,255,0.45);
+  color: #fff;
+  border-radius: 100rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.hb-skip:active {
+  opacity: 0.7;
+}
+
+/* ── 进展区标题 ───────────────────────── */
+.sec-h {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 32rpx 24rpx;
+  letter-spacing: -0.2rpx;
+}
+
+/* ── 进展毛玻璃卡 ────────────────────── */
+.pc {
+  border-radius: 32rpx;
+  padding: 32rpx 36rpx;
+  margin: 0 32rpx 24rpx;
+}
+
+.pc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.pc-name {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pc-icon-box {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pc-icon-box.rose {
+  background: var(--rose-glow);
+}
+
+.pc-day {
+  font-size: 23rpx;
+  color: var(--ink-muted);
+  background: rgba(255,255,255,0.55);
+  padding: 6rpx 20rpx;
+  border-radius: 100rpx;
+  font-weight: 800;
+}
+
+/* ── 进度条 ───────────────────────────── */
+.track {
+  height: 10rpx;
+  border-radius: 100rpx;
+  background: rgba(27,25,40,0.08);
+  overflow: hidden;
+  margin: 10rpx 0;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 100rpx;
+  transition: width 800ms ease-out;
+}
+
+.fill-rose {
+  background: linear-gradient(90deg, #E06844, #F4845F);
+}
+
+.pc-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: var(--ink-soft);
+}
+
+.pct {
+  font-weight: 800;
+}
+
+.pct-rose {
+  color: var(--rose);
+}
+
+/* ── 复盘按钮 ─────────────────────────── */
+.reflect-btn {
+  margin: 8rpx 32rpx 100rpx;
+  height: 104rpx;
+  border-radius: 100rpx;
+  border: 1rpx solid rgba(27,25,40,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--ink);
+  width: auto;
+}
+
+.reflect-btn:active {
+  transform: scale(0.96);
+}
+
+/* ── 骨架屏 ───────────────────────────── */
+.skeleton-hero {
+  height: 440rpx;
+  border-radius: 48rpx;
+  margin: 0 32rpx;
+  background: linear-gradient(
+    90deg,
+    rgba(27,25,40,0.06) 0%,
+    rgba(27,25,40,0.10) 50%,
+    rgba(27,25,40,0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-pc {
+  height: 160rpx;
+  border-radius: 32rpx;
+  margin: 0 32rpx;
+  background: linear-gradient(
+    90deg,
+    rgba(27,25,40,0.06) 0%,
+    rgba(27,25,40,0.10) 50%,
+    rgba(27,25,40,0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}

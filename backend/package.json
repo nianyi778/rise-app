@@ -1,0 +1,28 @@
+{
+  "name": "rise-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:migrate": "node -e \"import('./dist/db/migrate.js').then(m => m.migrate())\"",
+    "db:migrate:dev": "tsx src/db/migrate.ts"
+  },
+  "dependencies": {
+    "hono": "^4.4.0",
+    "@hono/node-server": "^1.12.0",
+    "pg": "^8.12.0",
+    "@anthropic-ai/sdk": "^0.27.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.23.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "tsx": "^4.16.0"
+  }
+}

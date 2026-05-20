@@ -1,0 +1,333 @@
+/* ─── 设计变量 ─────────────────────────────────── */
+page {
+  /* 渐变背景原色 */
+  --bg-1: #F2DECE;
+  --bg-2: #E6D8EE;
+  --bg-3: #C6DCF0;
+  --bg-4: #CEEADE;
+
+  /* 毛玻璃 */
+  --glass:          rgba(255,255,255,0.60);
+  --glass-strong:   rgba(255,255,255,0.82);
+  --glass-subtle:   rgba(255,255,255,0.32);
+  --gborder:        rgba(255,255,255,0.76);
+  --gborder-sub:    rgba(255,255,255,0.42);
+  --blur:           blur(26px);
+  --blur-sm:        blur(14px);
+
+  /* 文字 */
+  --ink:        #1B1928;
+  --ink-mid:    #3B3650;
+  --ink-soft:   #68637A;
+  --ink-muted:  #A6A0B8;
+
+  /* 品牌色 */
+  --rose:       #E06844;
+  --rose-dark:  #C4522E;
+  --rose-glow:  rgba(224,104,68,0.18);
+  --green:      #53A47A;
+  --green-glow: rgba(83,164,122,0.15);
+  --violet:     #7468E8;
+
+  /* 圆角 */
+  --r-sm:  14rpx;
+  --r-md:  20rpx;
+  --r-lg:  28rpx;
+  --r-xl:  38rpx;
+
+  /* 阴影 */
+  --sg: 0 8rpx 32rpx rgba(50,36,90,0.10);
+  --sf: 0 18rpx 52rpx rgba(50,36,90,0.17);
+
+  /* 动画 easing */
+  --spring:    cubic-bezier(0.22,1,0.36,1);
+  --ease-out:  cubic-bezier(0.0,0.0,0.2,1);
+  --ease-in:   cubic-bezier(0.4,0.0,1,1);
+
+  /* 排版 */
+  font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  color: var(--ink);
+  background-color: #FAF7F2;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+/* ─── 全局重置 ──────────────────────────────────── */
+view, text, image, input, textarea, button {
+  box-sizing: border-box;
+}
+
+button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button::after {
+  border: none;
+}
+
+/* ─── 渐变网格背景 ──────────────────────────────── */
+.bg-mesh {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(155deg, var(--bg-1) 0%, var(--bg-2) 32%, var(--bg-3) 68%, var(--bg-4) 100%);
+  z-index: 0;
+}
+
+.bg-glow-rose {
+  position: absolute;
+  top: -160rpx; right: -160rpx;
+  width: 680rpx; height: 680rpx;
+  background: radial-gradient(circle, rgba(224,104,68,0.20) 0%, transparent 62%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bg-glow-violet {
+  position: absolute;
+  bottom: 80rpx; left: -140rpx;
+  width: 560rpx; height: 560rpx;
+  background: radial-gradient(circle, rgba(116,104,232,0.17) 0%, transparent 62%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ─── 毛玻璃基础类 ──────────────────────────────── */
+.glass {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1rpx solid var(--gborder);
+}
+
+.glass-strong {
+  background: var(--glass-strong);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1rpx solid var(--gborder);
+}
+
+.glass-sm {
+  background: var(--glass);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  border: 1rpx solid var(--gborder);
+}
+
+.glass-subtle {
+  background: var(--glass-subtle);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  border: 1rpx solid var(--gborder-sub);
+}
+
+/* ─── 通用按钮 ──────────────────────────────────── */
+.btn {
+  width: 100%;
+  height: 116rpx;
+  border-radius: var(--r-lg);
+  font-size: 34rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  transition: transform 150ms ease, filter 150ms ease;
+}
+
+.btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.94);
+}
+
+.btn-rose {
+  background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+  color: #fff;
+  box-shadow: 0 16rpx 48rpx rgba(224,104,68,0.32);
+}
+
+.btn-dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-glass {
+  background: var(--glass-strong);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  border: 1rpx solid var(--gborder);
+  color: var(--ink);
+}
+
+/* ─── 卡片基础 ──────────────────────────────────── */
+.card {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1rpx solid var(--gborder);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sg);
+  padding: 32rpx 36rpx;
+}
+
+.card:active {
+  transform: translateY(-4rpx);
+  box-shadow: 0 16rpx 48rpx rgba(50,36,90,0.15);
+  transition: all 200ms var(--spring);
+}
+
+/* ─── Scroll 容器 ───────────────────────────────── */
+.scroll-wrap {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── 状态栏占位 ────────────────────────────────── */
+.status-bar {
+  height: var(--status-bar-height, 44px);
+}
+
+/* ─── 页面动画基类 ──────────────────────────────── */
+.page-enter {
+  animation: fadeUp 380ms var(--spring) both;
+}
+
+.page-exit {
+  animation: fadeOut 220ms var(--ease-in) both;
+}
+
+/* ─── Keyframes ─────────────────────────────────── */
+
+/* 页面进入：上移淡入 */
+@keyframes fadeUp {
+  from {
+    transform: translateY(60rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 淡出 */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* 骨架屏 shimmer */
+@keyframes shimmer {
+  0%   { background-position: -750rpx 0; }
+  100% { background-position: 750rpx 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.2) 25%,
+    rgba(255,255,255,0.5) 50%,
+    rgba(255,255,255,0.2) 75%
+  );
+  background-size: 1500rpx 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 8rpx;
+}
+
+/* 呼吸光晕 */
+@keyframes breathe {
+  0%,100% { transform: scale(1);   opacity: 0.5; }
+  50%      { transform: scale(1.09); opacity: 1; }
+}
+
+/* 列表错落入场 */
+@keyframes staggerFadeUp {
+  from {
+    transform: translateY(32rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 弹簧弹出 */
+@keyframes springPop {
+  0%   { transform: scale(0.8);  opacity: 0; }
+  60%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1.0);  opacity: 1; }
+}
+
+/* AI 观察绿点脉冲 */
+@keyframes dotPulse {
+  0%,100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* 专注计时圆环脉冲 */
+@keyframes fpcPulse {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+/* 完成页粒子下落 */
+@keyframes confettiFall {
+  0%   { transform: translateY(-40rpx) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(1800rpx) rotate(540deg); opacity: 0; }
+}
+
+/* countUp 数字翻滚 */
+@keyframes rollUp {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+
+@keyframes rollIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ─── 通用工具类 ────────────────────────────────── */
+.flex       { display: flex; }
+.flex-col   { display: flex; flex-direction: column; }
+.flex-1     { flex: 1; }
+.items-center  { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+
+.text-ink      { color: var(--ink); }
+.text-soft     { color: var(--ink-soft); }
+.text-muted    { color: var(--ink-muted); }
+.text-rose     { color: var(--rose); }
+.text-green    { color: var(--green); }
+.text-white    { color: #fff; }
+
+.fw-400 { font-weight: 400; }
+.fw-500 { font-weight: 500; }
+.fw-700 { font-weight: 700; }
+.fw-800 { font-weight: 800; }
+.fw-900 { font-weight: 900; }
+
+.lh-1   { line-height: 1; }
+.lh-165 { line-height: 1.65; }
+.lh-178 { line-height: 1.78; }
+
+.mt-8  { margin-top: 8rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mt-32 { margin-top: 32rpx; }
+.mb-8  { margin-bottom: 8rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+.mb-32 { margin-bottom: 32rpx; }
+
+.px-24 { padding-left: 24rpx; padding-right: 24rpx; }
+.px-40 { padding-left: 40rpx; padding-right: 40rpx; }
+.py-16 { padding-top: 16rpx; padding-bottom: 16rpx; }
+.py-24 { padding-top: 24rpx; padding-bottom: 24rpx; }

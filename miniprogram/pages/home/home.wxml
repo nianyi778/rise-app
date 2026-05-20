@@ -1,0 +1,167 @@
+<!-- PAGE 03 · HOME — 今日要事英雄卡 + 进展 -->
+<view class="wrap">
+  <!-- 固定背景光晕层 -->
+  <view class="bg-mesh">
+    <view class="bg-glow-rose"/>
+    <view class="bg-glow-violet"/>
+  </view>
+
+  <view class="screen">
+    <view class="status-bar"/>
+
+    <!-- 顶部标题区（不随内容滚动） -->
+    <view class="hd">
+      <text class="hd-greet">{{greet}}，{{nickname}}</text>
+      <text class="hd-date">{{dateLabel}}</text>
+
+      <!-- 守护连击 pill -->
+      <view class="guard-pill" wx:if="{{streakDays > 0}}">
+        <view class="guard-dot"/>
+        <text class="guard-txt">已连续守护 <text class="guard-num">{{streakDays}}</text> 天</text>
+      </view>
+    </view>
+
+    <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="hs">
+
+        <!-- ── 骨架屏 ── -->
+        <block wx:if="{{loading}}">
+          <view class="skeleton-hero skeleton"/>
+          <view class="skeleton-pc skeleton" style="margin-top:16rpx;"/>
+          <view class="skeleton-pc skeleton" style="margin-top:12rpx;"/>
+        </block>
+
+        <!-- ── 主内容 ── -->
+        <block wx:else>
+
+          <!-- 英雄卡 -->
+          <view class="hero {{pageEntered ? 'entered' : ''}}">
+            <!-- 装饰圆（半透明白，右上 + 左下） -->
+            <view class="hero-deco-tl"/>
+            <view class="hero-deco-br"/>
+
+            <!-- 右上角天数进度环 -->
+            <view class="hero-day-ring">
+              <view class="hdr-wrap">
+                <canvas
+                  id="dayRing"
+                  type="2d"
+                  style="width:108rpx;height:108rpx;"
+                  class="hdr-canvas"
+                />
+                <view class="hdr-mid">
+                  <text class="hdr-n">{{session.dayIndex}}</text>
+                  <text class="hdr-l">天</text>
+                </view>
+              </view>
+            </view>
+
+            <!-- 标签 -->
+            <view class="hero-tag">
+              <!-- pin icon -->
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                stroke="rgba(255,255,255,0.70)" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              <text>今日要事</text>
+            </view>
+
+            <!-- 目标名 · 第N天 -->
+            <text class="hero-goal-lbl">{{goal.title}} · 第 {{session.dayIndex}} 天</text>
+
+            <!-- 今日行动（大字） -->
+            <text class="hero-action">{{session.action}}</text>
+
+            <!-- 元信息 pills -->
+            <view class="hero-meta">
+              <view class="hero-pill">
+                <!-- clock icon -->
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="rgba(255,255,255,0.65)" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <text>{{session.estimatedMin}} 分钟</text>
+              </view>
+              <view class="hero-pill">
+                <!-- bell icon -->
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="rgba(255,255,255,0.65)" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <text>{{goal.preferTime}}</text>
+              </view>
+            </view>
+
+            <!-- AI 观察（分割线上方） -->
+            <view class="hero-ai-note">
+              <view class="han-dot"/>
+              <text class="han-txt">{{aiNote}}</text>
+            </view>
+
+            <!-- 操作按钮 -->
+            <view class="hero-btns">
+              <button class="hb-start" bindtap="onStartFocus">
+                <!-- play icon -->
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--ink)" stroke="none">
+                  <polygon points="5,3 19,12 5,21"/>
+                </svg>
+                <text>开始专注</text>
+              </button>
+              <button class="hb-skip" bindtap="onSkip">今天不行</button>
+            </view>
+          </view>
+
+          <!-- 进展区标题 -->
+          <text class="sec-h">进展</text>
+
+          <!-- 进展卡 -->
+          <view class="pc glass" wx:if="{{goal}}">
+            <view class="pc-top">
+              <view class="pc-name">
+                <view class="pc-icon-box rose">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="#E06844" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="6"/>
+                    <circle cx="12" cy="12" r="2"/>
+                  </svg>
+                </view>
+                <text>{{goal.title}}</text>
+              </view>
+              <text class="pc-day">第 {{session.dayIndex}} 天</text>
+            </view>
+            <view class="track">
+              <view class="fill fill-rose" style="width:{{dayProgressPct}}%"/>
+            </view>
+            <view class="pc-foot">
+              <text>{{goal.phase.name}}</text>
+              <text class="pct pct-rose">{{dayProgressPct}}%</text>
+            </view>
+          </view>
+
+          <!-- 复盘入口按钮 -->
+          <button class="reflect-btn glass" bindtap="onGoReflection">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="#1B1928" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            <text>写下今天的感受</text>
+          </button>
+
+        </block>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 隐藏分享 Canvas（type=2d，供 onShare 绘制打卡卡片） -->
+  <canvas type="2d" id="shareCanvas" class="share-canvas"/>
+</view>
