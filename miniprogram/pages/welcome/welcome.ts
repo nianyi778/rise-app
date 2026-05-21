@@ -31,6 +31,7 @@ interface WelcomeData {
   dailyMinutes: number
   inputFocused: boolean
   submitting: boolean
+  scrollH: string
   categories: CategoryOption[]
   blockerOptions: BlockerOption[]
   timeOptions: TimeOption[]
@@ -46,6 +47,7 @@ Page<WelcomeData, AnyObject>({
     dailyMinutes: 25,
     inputFocused: false,
     submitting: false,
+    scrollH: '100vh',
     categories: [
       { key: 'work',   label: '职场' },
       { key: 'health', label: '健康' },
@@ -72,7 +74,13 @@ Page<WelcomeData, AnyObject>({
     const { hasOnboarded, currentGoal } = store.getState()
     if (hasOnboarded && currentGoal) {
       wx.switchTab({ url: '/pages/home/home' })
+      return
     }
+    const sys = wx.getSystemInfoSync()
+    const rpxRatio = sys.windowWidth / 750
+    const dotsH = Math.ceil(88 * rpxRatio) // 88rpx prog-dots area in px
+    const scrollH = sys.windowHeight - (sys.statusBarHeight ?? 44) - dotsH
+    this.setData({ scrollH: `${scrollH}px` })
   },
 
   onInputChange(e: WechatMiniprogram.Input) {

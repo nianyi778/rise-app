@@ -14,6 +14,7 @@
       scroll-y
       enhanced
       show-scrollbar="{{false}}"
+      style="height: {{scrollH}};"
       wx:if="{{currentStep === 0}}"
     >
       <view class="step-inner">
@@ -76,6 +77,7 @@
       scroll-y
       enhanced
       show-scrollbar="{{false}}"
+      style="height: {{scrollH}};"
       wx:elif="{{currentStep === 1}}"
     >
       <view class="step-inner">
@@ -114,6 +116,7 @@
       scroll-y
       enhanced
       show-scrollbar="{{false}}"
+      style="height: {{scrollH}};"
       wx:elif="{{currentStep === 2}}"
     >
       <view class="step-inner">

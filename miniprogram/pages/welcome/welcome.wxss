@@ -21,9 +21,9 @@
 /* ─── scroll-view 占满剩余高度 ──────────────────── */
 .step-scroll {
   flex: 1;
-  height: 0;   /* flex + height:0 使 scroll-view 可伸缩 */
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .step-inner {
