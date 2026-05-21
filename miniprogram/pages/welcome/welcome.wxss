@@ -1,35 +1,19 @@
 @import '../../app.wxss';
 
-/* ─── 页面容器 ─────────────────────────────────── */
+/* ─── 页面根容器（可滚动，不需要 scroll-view） ── */
 .wrap {
   position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.screen {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding-bottom: 32rpx;
 }
 
-/* ─── scroll-view 占满剩余高度 ──────────────────── */
-.step-scroll {
-  flex: 1;
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
+/* ─── 步骤内容区 ──────────────────────────────── */
 .step-inner {
-  padding: 24rpx 48rpx 32rpx;
+  padding: 24rpx 48rpx 0;
   width: 100%;
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* ─── 品牌 ────────────────────────────────────── */
@@ -65,7 +49,6 @@
   line-height: 1.32;
   letter-spacing: -0.6rpx;
   margin-bottom: 18rpx;
-  word-break: break-all;
 }
 
 .sub {
@@ -125,7 +108,6 @@
   flex-wrap: wrap;
   gap: 16rpx;
   margin-bottom: 48rpx;
-  width: 100%;
 }
 
 .cat-chip {
@@ -168,7 +150,6 @@
   font-weight: 800;
   color: var(--rose);
   letter-spacing: 2rpx;
-  text-transform: uppercase;
   margin-bottom: 20rpx;
 }
 
@@ -197,7 +178,6 @@
   flex-direction: column;
   gap: 20rpx;
   margin-bottom: 48rpx;
-  width: 100%;
 }
 
 .opt-card {
@@ -213,7 +193,6 @@
   padding: 32rpx 28rpx;
   box-shadow: var(--sg);
   transition: border-left-color 200ms var(--spring), background 200ms;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -270,7 +249,6 @@
   padding: 32rpx 32rpx 24rpx;
   margin-bottom: 48rpx;
   box-shadow: var(--sg);
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -314,18 +292,13 @@
   opacity: 0.72;
 }
 
-/* ─── 安全区底部留白 ─────────────────────────── */
-.safe-bottom {
-  height: 32rpx;
-}
-
 /* ─── 底部进度点 ──────────────────────────────── */
 .prog-dots {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  padding: 20rpx 0 48rpx;
+  padding: 40rpx 0 48rpx;
   flex-shrink: 0;
 }
 

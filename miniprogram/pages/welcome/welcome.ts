@@ -31,7 +31,8 @@ interface WelcomeData {
   dailyMinutes: number
   inputFocused: boolean
   submitting: boolean
-  scrollH: string
+  windowH: string
+  statusBarH: string
   categories: CategoryOption[]
   blockerOptions: BlockerOption[]
   timeOptions: TimeOption[]
@@ -47,7 +48,8 @@ Page<WelcomeData, AnyObject>({
     dailyMinutes: 25,
     inputFocused: false,
     submitting: false,
-    scrollH: '100vh',
+    windowH: '100vh',
+    statusBarH: '44px',
     categories: [
       { key: 'work',   label: '职场' },
       { key: 'health', label: '健康' },
@@ -77,10 +79,10 @@ Page<WelcomeData, AnyObject>({
       return
     }
     const sys = wx.getSystemInfoSync()
-    const rpxRatio = sys.windowWidth / 750
-    const dotsH = Math.ceil(88 * rpxRatio) // 88rpx prog-dots area in px
-    const scrollH = sys.windowHeight - (sys.statusBarHeight ?? 44) - dotsH
-    this.setData({ scrollH: `${scrollH}px` })
+    this.setData({
+      windowH: `${sys.windowHeight}px`,
+      statusBarH: `${sys.statusBarHeight ?? 44}px`,
+    })
   },
 
   onInputChange(e: WechatMiniprogram.Input) {
