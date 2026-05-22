@@ -4,6 +4,14 @@ import type {
   CheckinPayload, CheckinResult,
   WeeklyReport, ChatMessage, GoalStatus,
 } from '../types/index'
+import {
+  mockWxLogin, mockCreateGoal, mockGetGoals, mockGetTodaySession,
+  mockGetTodayCheckin, mockSubmitCheckin, mockStreamChatMessage,
+  mockGetWeeklyReport, mockUpdateGoalStatus,
+} from './mock'
+
+// ← 改成 true 开启本地 mock，不需要后端
+const USE_MOCK = true
 
 const BASE_URL = 'https://rise.likai.me'
 const TIMEOUT = 10000
@@ -177,6 +185,7 @@ function request<T>(
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export async function wxLogin(): Promise<{ token: string; user: User }> {
+  if (USE_MOCK) return mockWxLogin()
   return new Promise((resolve, reject) => {
     wx.login({
       success: async (loginRes) => {
@@ -197,6 +206,7 @@ export async function wxLogin(): Promise<{ token: string; user: User }> {
 // ── Goals ─────────────────────────────────────────────────────────────────────
 
 export async function createGoal(payload: OnboardingPayload): Promise<OnboardingResult> {
+  if (USE_MOCK) return mockCreateGoal(payload)
   const res = await request<{ goal: RawGoal; session: RawSession }>(
     '/goals', 'POST', payload as unknown as Record<string, unknown>,
   )
@@ -204,16 +214,19 @@ export async function createGoal(payload: OnboardingPayload): Promise<Onboarding
 }
 
 export async function getGoals(): Promise<Goal[]> {
+  if (USE_MOCK) return mockGetGoals()
   const res = await request<{ goals: RawGoal[] }>('/goals', 'GET')
   return res.goals.map(mapGoal)
 }
 
 export async function getTodaySession(goalId: string): Promise<Session> {
+  if (USE_MOCK) return mockGetTodaySession(goalId)
   const res = await request<{ session: RawSession }>(`/goals/${goalId}/session`, 'GET')
   return mapSession(res.session)
 }
 
 export async function updateGoalStatus(goalId: string, status: GoalStatus): Promise<Goal> {
+  if (USE_MOCK) return mockUpdateGoalStatus(goalId, status)
   const res = await request<{ goal: RawGoal }>(`/goals/${goalId}`, 'PUT', { status })
   return mapGoal(res.goal)
 }
@@ -221,11 +234,13 @@ export async function updateGoalStatus(goalId: string, status: GoalStatus): Prom
 // ── Checkin ───────────────────────────────────────────────────────────────────
 
 export async function getTodayCheckin(): Promise<Checkin[]> {
+  if (USE_MOCK) return mockGetTodayCheckin()
   const res = await request<{ checkins: Array<RawCheckin & { action: string }> }>('/checkin/today', 'GET')
   return res.checkins.map(mapCheckin)
 }
 
 export async function submitCheckin(payload: CheckinPayload): Promise<CheckinResult> {
+  if (USE_MOCK) return mockSubmitCheckin(payload)
   const res = await request<{ checkin: RawCheckin; streakDay: number; isNewRecord: boolean }>(
     '/checkin', 'POST', payload as unknown as Record<string, unknown>,
   )
@@ -242,6 +257,7 @@ export function streamChatMessage(
   onDone: () => void,
   onError: (err: Error) => void,
 ): WechatMiniprogram.RequestTask {
+  if (USE_MOCK) return mockStreamChatMessage(goalId, checkinId, messages, onChunk, onDone, onError)
   const token = wx.getStorageSync('token') as string
   const task = wx.request({
     url: `${BASE_URL}/ai/chat`,
@@ -271,6 +287,7 @@ export function streamChatMessage(
 // ── Weekly Report ─────────────────────────────────────────────────────────────
 
 export async function getWeeklyReport(weekOffset = 0): Promise<WeeklyReport> {
+  if (USE_MOCK) return mockGetWeeklyReport(weekOffset)
   const res = await request<{
     week: { monday: string; sunday: string; completedDays: number; totalDays: number }
     goal: RawGoal

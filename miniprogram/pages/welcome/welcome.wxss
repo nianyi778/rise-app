@@ -154,22 +154,32 @@
 }
 
 .back-btn {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 4rpx 16rpx rgba(50,36,90,0.10);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8rpx;
+  background: var(--glass-strong);
+  backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
+  border: 1.5rpx solid var(--gborder);
+  border-radius: 100rpx;
+  padding: 14rpx 28rpx 14rpx 20rpx;
+  box-shadow: var(--sg);
   flex-shrink: 0;
 }
 
 .back-arrow {
-  font-size: 36rpx;
+  font-size: 40rpx;
+  font-weight: 300;
   color: var(--ink-mid);
   line-height: 1;
   margin-top: -2rpx;
+}
+
+.back-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--ink-mid);
+  line-height: 1;
 }
 
 /* ─── Step 1/2：向导通用 ────────────────────── */

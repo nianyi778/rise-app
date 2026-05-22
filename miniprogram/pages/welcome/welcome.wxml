@@ -59,7 +59,8 @@
   <view class="step-inner" wx:elif="{{currentStep === 1}}">
     <view class="step-hd">
       <view class="back-btn" bindtap="onBack">
-        <text class="back-arrow">←</text>
+        <text class="back-arrow">‹</text>
+        <text class="back-label">返回</text>
       </view>
       <text class="wiz-step">问题 2 / 3</text>
     </view>
@@ -93,7 +94,8 @@
   <view class="step-inner" wx:elif="{{currentStep === 2}}">
     <view class="step-hd">
       <view class="back-btn" bindtap="onBack">
-        <text class="back-arrow">←</text>
+        <text class="back-arrow">‹</text>
+        <text class="back-label">返回</text>
       </view>
       <text class="wiz-step">问题 3 / 3</text>
     </view>

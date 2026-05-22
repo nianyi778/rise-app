@@ -9,6 +9,9 @@ exports.getTodayCheckin = getTodayCheckin;
 exports.submitCheckin = submitCheckin;
 exports.streamChatMessage = streamChatMessage;
 exports.getWeeklyReport = getWeeklyReport;
+const mock_1 = require("./mock");
+// ← 改成 true 开启本地 mock，不需要后端
+const USE_MOCK = true;
 const BASE_URL = 'https://rise.likai.me';
 const TIMEOUT = 10000;
 // ── Mappers ───────────────────────────────────────────────────────────────────
@@ -116,6 +119,8 @@ function request(path, method, data) {
 }
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function wxLogin() {
+    if (USE_MOCK)
+        return (0, mock_1.mockWxLogin)();
     return new Promise((resolve, reject) => {
         wx.login({
             success: async (loginRes) => {
@@ -138,32 +143,46 @@ async function wxLogin() {
 }
 // ── Goals ─────────────────────────────────────────────────────────────────────
 async function createGoal(payload) {
+    if (USE_MOCK)
+        return (0, mock_1.mockCreateGoal)(payload);
     const res = await request('/goals', 'POST', payload);
     return { goal: mapGoal(res.goal), session: mapSession(res.session) };
 }
 async function getGoals() {
+    if (USE_MOCK)
+        return (0, mock_1.mockGetGoals)();
     const res = await request('/goals', 'GET');
     return res.goals.map(mapGoal);
 }
 async function getTodaySession(goalId) {
+    if (USE_MOCK)
+        return (0, mock_1.mockGetTodaySession)(goalId);
     const res = await request(`/goals/${goalId}/session`, 'GET');
     return mapSession(res.session);
 }
 async function updateGoalStatus(goalId, status) {
+    if (USE_MOCK)
+        return (0, mock_1.mockUpdateGoalStatus)(goalId, status);
     const res = await request(`/goals/${goalId}`, 'PUT', { status });
     return mapGoal(res.goal);
 }
 // ── Checkin ───────────────────────────────────────────────────────────────────
 async function getTodayCheckin() {
+    if (USE_MOCK)
+        return (0, mock_1.mockGetTodayCheckin)();
     const res = await request('/checkin/today', 'GET');
     return res.checkins.map(mapCheckin);
 }
 async function submitCheckin(payload) {
+    if (USE_MOCK)
+        return (0, mock_1.mockSubmitCheckin)(payload);
     const res = await request('/checkin', 'POST', payload);
     return { checkin: mapCheckin(res.checkin), streakDay: res.streakDay, isNewRecord: res.isNewRecord };
 }
 // ── AI Chat (streaming via chunked transfer) ──────────────────────────────────
 function streamChatMessage(goalId, checkinId, messages, onChunk, onDone, onError) {
+    if (USE_MOCK)
+        return (0, mock_1.mockStreamChatMessage)(goalId, checkinId, messages, onChunk, onDone, onError);
     const token = wx.getStorageSync('token');
     const task = wx.request({
         url: `${BASE_URL}/ai/chat`,
@@ -191,6 +210,8 @@ function streamChatMessage(goalId, checkinId, messages, onChunk, onDone, onError
 }
 // ── Weekly Report ─────────────────────────────────────────────────────────────
 async function getWeeklyReport(weekOffset = 0) {
+    if (USE_MOCK)
+        return (0, mock_1.mockGetWeeklyReport)(weekOffset);
     const res = await request(`/report/weekly${weekOffset > 0 ? `?offset=${weekOffset}` : ''}`, 'GET');
     const totalFocusMin = res.sessions.reduce((s, r) => { var _a; return s + ((_a = r.actual_min) !== null && _a !== void 0 ? _a : 0); }, 0);
     const dailyData = res.sessions.map(s => {
