@@ -4,6 +4,7 @@ const index_1 = require("../../api/index");
 const index_2 = require("../../store/index");
 const index_3 = require("../../utils/index");
 const shareCard_1 = require("../../utils/shareCard");
+const cache_1 = require("../../utils/cache");
 Page({
     data: {
         greet: '',
@@ -32,48 +33,54 @@ Page({
     async onShow() {
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 0 });
-        await this.loadData();
-        setTimeout(() => this.setData({ pageEntered: true }), 50);
+        this._loadData();
     },
-    async loadData() {
-        var _a, _b, _c;
-        this.setData({ loading: true, pageEntered: false });
-        try {
+    _loadData(silent = false) {
+        const cached = (0, cache_1.swr)('home_data', async () => {
             const goals = await (0, index_1.getGoals)();
-            const activeGoal = goals.find(g => g.status === 'active') || null;
-            if (!activeGoal) {
-                wx.reLaunch({ url: '/pages/welcome/welcome' });
-                return;
-            }
+            const activeGoal = goals.find(g => g.status === 'active');
+            if (!activeGoal)
+                throw new Error('no_goal');
             const session = await (0, index_1.getTodaySession)(activeGoal._id);
-            const dayProgress = activeGoal.phase.durationDays > 0
-                ? session.dayIndex / activeGoal.phase.durationDays
-                : 0;
-            index_2.store.setCurrentGoal(activeGoal);
-            index_2.store.setTodaySession(session);
-            // 同步最新 nickname / streakDays
-            const state = index_2.store.getState();
-            this.setData({
-                goal: activeGoal,
-                session,
-                nickname: (_b = (_a = state.userInfo) === null || _a === void 0 ? void 0 : _a.nickname) !== null && _b !== void 0 ? _b : this.data.nickname,
-                streakDays: state.streakDays,
-                dayProgress,
-                dayProgressPct: Math.floor(dayProgress * 100),
-                dayDashOffset: (0, index_3.calcDashOffset)(dayProgress, 27),
-                aiNote: ((_c = activeGoal.aiPlan) === null || _c === void 0 ? void 0 : _c.encouragement) || '专注当下，每一步都算数',
-                loading: false,
-            });
-            // Canvas 绘制延后到 DOM 渲染完成后
-            setTimeout(() => this._drawDayRing(dayProgress), 200);
+            return { goal: activeGoal, session };
+        }, (fresh) => this._applyData(fresh.goal, fresh.session, true));
+        if (cached) {
+            this._applyData(cached.goal, cached.session, false);
         }
-        catch (e) {
-            this.setData({ loading: false });
-            wx.showToast({ title: '加载失败，请下拉刷新', icon: 'none' });
+        else if (!silent) {
+            this.setData({ loading: true });
+        }
+    },
+    _applyData(activeGoal, session, fromFresh) {
+        var _a, _b, _c;
+        const dayProgress = activeGoal.phase.durationDays > 0
+            ? session.dayIndex / activeGoal.phase.durationDays
+            : 0;
+        index_2.store.setCurrentGoal(activeGoal);
+        index_2.store.setTodaySession(session);
+        const state = index_2.store.getState();
+        this.setData({
+            goal: activeGoal,
+            session,
+            nickname: (_b = (_a = state.userInfo) === null || _a === void 0 ? void 0 : _a.nickname) !== null && _b !== void 0 ? _b : this.data.nickname,
+            streakDays: state.streakDays,
+            dayProgress,
+            dayProgressPct: Math.floor(dayProgress * 100),
+            dayDashOffset: (0, index_3.calcDashOffset)(dayProgress, 27),
+            aiNote: ((_c = activeGoal.aiPlan) === null || _c === void 0 ? void 0 : _c.encouragement) || '专注当下，每一步都算数',
+            loading: false,
+            pageEntered: true,
+        });
+        if (fromFresh) {
+            setTimeout(() => this._drawDayRing(dayProgress), 100);
+        }
+        else {
+            setTimeout(() => this._drawDayRing(dayProgress), 200);
         }
     },
     onPullDownRefresh() {
-        this.loadData().then(() => wx.stopPullDownRefresh());
+        this._loadData(false);
+        wx.stopPullDownRefresh();
     },
     /**
      * 使用 Canvas 2D API（非 deprecated 的 createCanvasContext）绘制天数进度环

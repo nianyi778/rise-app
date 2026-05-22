@@ -108,7 +108,7 @@
             <view class="hero-btns">
               <button class="hb-start" bindtap="onStartFocus">
                 <!-- play icon -->
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--ink)" stroke="none">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#1B1928" stroke="none">
                   <polygon points="5,3 19,12 5,21"/>
                 </svg>
                 <text>开始专注</text>

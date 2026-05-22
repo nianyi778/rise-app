@@ -2,6 +2,7 @@ import { getTodaySession, getGoals } from '../../api/index'
 import { store } from '../../store/index'
 import { greeting, weekdayCN, formatDate, calcDashOffset, RING_CIRCUMFERENCE_27 } from '../../utils/index'
 import { drawShareCard } from '../../utils/shareCard'
+import { swr } from '../../utils/cache'
 import type { Goal, Session } from '../../types/index'
 
 interface HomeData {
@@ -48,52 +49,62 @@ Page<HomeData, AnyObject>({
   async onShow() {
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 0 })
-    await this.loadData()
-    setTimeout(() => this.setData({ pageEntered: true }), 50)
+    this._loadData()
   },
 
-  async loadData() {
-    this.setData({ loading: true, pageEntered: false })
-    try {
-      const goals = await getGoals()
-      const activeGoal = goals.find(g => g.status === 'active') || null
-      if (!activeGoal) {
-        wx.reLaunch({ url: '/pages/welcome/welcome' })
-        return
-      }
+  _loadData(silent = false) {
+    type CacheShape = { goal: Goal; session: Session }
+    const cached = swr<CacheShape>(
+      'home_data',
+      async () => {
+        const goals = await getGoals()
+        const activeGoal = goals.find(g => g.status === 'active')
+        if (!activeGoal) throw new Error('no_goal')
+        const session = await getTodaySession(activeGoal._id)
+        return { goal: activeGoal, session }
+      },
+      (fresh) => this._applyData(fresh.goal, fresh.session, true),
+    )
 
-      const session = await getTodaySession(activeGoal._id)
-      const dayProgress = activeGoal.phase.durationDays > 0
-        ? session.dayIndex / activeGoal.phase.durationDays
-        : 0
+    if (cached) {
+      this._applyData(cached.goal, cached.session, false)
+    } else if (!silent) {
+      this.setData({ loading: true })
+    }
+  },
 
-      store.setCurrentGoal(activeGoal)
-      store.setTodaySession(session)
+  _applyData(activeGoal: Goal, session: Session, fromFresh: boolean) {
+    const dayProgress = activeGoal.phase.durationDays > 0
+      ? session.dayIndex / activeGoal.phase.durationDays
+      : 0
 
-      // 同步最新 nickname / streakDays
-      const state = store.getState()
-      this.setData({
-        goal: activeGoal,
-        session,
-        nickname: state.userInfo?.nickname ?? this.data.nickname,
-        streakDays: state.streakDays,
-        dayProgress,
-        dayProgressPct: Math.floor(dayProgress * 100),
-        dayDashOffset: calcDashOffset(dayProgress, 27),
-        aiNote: activeGoal.aiPlan?.encouragement || '专注当下，每一步都算数',
-        loading: false,
-      })
+    store.setCurrentGoal(activeGoal)
+    store.setTodaySession(session)
+    const state = store.getState()
 
-      // Canvas 绘制延后到 DOM 渲染完成后
+    this.setData({
+      goal: activeGoal,
+      session,
+      nickname: state.userInfo?.nickname ?? this.data.nickname,
+      streakDays: state.streakDays,
+      dayProgress,
+      dayProgressPct: Math.floor(dayProgress * 100),
+      dayDashOffset: calcDashOffset(dayProgress, 27),
+      aiNote: activeGoal.aiPlan?.encouragement || '专注当下，每一步都算数',
+      loading: false,
+      pageEntered: true,
+    })
+
+    if (fromFresh) {
+      setTimeout(() => this._drawDayRing(dayProgress), 100)
+    } else {
       setTimeout(() => this._drawDayRing(dayProgress), 200)
-    } catch (e) {
-      this.setData({ loading: false })
-      wx.showToast({ title: '加载失败，请下拉刷新', icon: 'none' })
     }
   },
 
   onPullDownRefresh() {
-    this.loadData().then(() => wx.stopPullDownRefresh())
+    this._loadData(false)
+    wx.stopPullDownRefresh()
   },
 
   /**

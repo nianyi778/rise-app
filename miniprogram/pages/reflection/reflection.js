@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../../api/index");
 const index_2 = require("../../store/index");
 const index_3 = require("../../utils/index");
+const cache_1 = require("../../utils/cache");
 Page({
     _streamTask: null,
     _greeted: false,
@@ -16,39 +17,42 @@ Page({
         scrollToId: '',
         pageEntered: false,
     },
-    async onShow() {
+    onShow() {
         const today = new Date().toISOString().slice(0, 10);
-        this.setData({ dateLabel: (0, index_3.friendlyDate)(today), pageEntered: false });
+        this.setData({ dateLabel: (0, index_3.friendlyDate)(today) });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 1 });
-        await this._loadCheckin();
-        setTimeout(() => this.setData({ pageEntered: true }), 50);
+        this._loadCheckin();
     },
-    async _loadCheckin() {
-        var _a, _b;
+    _loadCheckin() {
+        var _a;
         const storeState = index_2.store.getState();
         const today = new Date().toISOString().slice(0, 10);
-        // First try store (populated after user completes a session)
-        let todayCheckin = (_a = storeState.recentCheckins.find(c => c.date === today)) !== null && _a !== void 0 ? _a : null;
-        // Fall back to API
-        if (!todayCheckin) {
-            try {
-                const checkins = await (0, index_1.getTodayCheckin)();
-                todayCheckin = (_b = checkins.find(c => c.date === today)) !== null && _b !== void 0 ? _b : null;
-            }
-            catch (_c) {
-                // ignore network errors, show empty state
-            }
+        // In-memory store takes priority (populated immediately after check-in)
+        const fromStore = (_a = storeState.recentCheckins.find(c => c.date === today)) !== null && _a !== void 0 ? _a : null;
+        if (fromStore) {
+            this._applyCheckin(fromStore);
+            return;
         }
-        this.setData({ todayCheckin });
-        if (todayCheckin && !this._greeted) {
+        // SWR: show cached checkin immediately, refresh in background
+        const cached = (0, cache_1.swr)(`checkin_${today}`, async () => {
+            var _a;
+            const checkins = await (0, index_1.getTodayCheckin)();
+            return (_a = checkins.find(c => c.date === today)) !== null && _a !== void 0 ? _a : null;
+        }, (fresh) => this._applyCheckin(fresh));
+        this._applyCheckin(cached);
+    },
+    _applyCheckin(checkin) {
+        this.setData({ todayCheckin: checkin, pageEntered: true });
+        const storeState = index_2.store.getState();
+        if (checkin && !this._greeted) {
             this._greeted = true;
             const existing = storeState.chatHistory;
             if (existing.length > 0) {
                 this.setData({ chatMessages: existing });
             }
             else {
-                this._openAIGreeting(todayCheckin);
+                this._openAIGreeting(checkin);
             }
         }
     },

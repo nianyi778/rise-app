@@ -13,13 +13,13 @@
       <text class="r-nav-title">本周报告</text>
       <view class="week-nav">
         <view class="week-btn" bindtap="onPrevWeek">
-          <svg width="28rpx" height="28rpx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#68637A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </view>
         <text class="week-label">{{report.weekLabel || '本周'}}</text>
         <view class="week-btn {{weekOffset <= 0 ? 'disabled' : ''}}" bindtap="onNextWeek">
-          <svg width="28rpx" height="28rpx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#68637A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </view>

@@ -1,6 +1,7 @@
 import { getTodayCheckin, streamChatMessage } from '../../api/index'
 import { store } from '../../store/index'
 import { friendlyDate } from '../../utils/index'
+import { swr } from '../../utils/cache'
 import type { Checkin, ChatMessage } from '../../types/index'
 
 interface ReflectionData {
@@ -29,44 +30,50 @@ Page<ReflectionData, AnyObject>({
     pageEntered: false,
   },
 
-  async onShow() {
+  onShow() {
     const today = new Date().toISOString().slice(0, 10)
-    this.setData({ dateLabel: friendlyDate(today), pageEntered: false })
+    this.setData({ dateLabel: friendlyDate(today) })
 
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 1 })
 
-    await this._loadCheckin()
-    setTimeout(() => this.setData({ pageEntered: true }), 50)
+    this._loadCheckin()
   },
 
-  async _loadCheckin() {
+  _loadCheckin() {
     const storeState = store.getState()
     const today = new Date().toISOString().slice(0, 10)
 
-    // First try store (populated after user completes a session)
-    let todayCheckin: Checkin | null =
-      storeState.recentCheckins.find(c => c.date === today) ?? null
-
-    // Fall back to API
-    if (!todayCheckin) {
-      try {
-        const checkins = await getTodayCheckin()
-        todayCheckin = checkins.find(c => c.date === today) ?? null
-      } catch {
-        // ignore network errors, show empty state
-      }
+    // In-memory store takes priority (populated immediately after check-in)
+    const fromStore = storeState.recentCheckins.find(c => c.date === today) ?? null
+    if (fromStore) {
+      this._applyCheckin(fromStore)
+      return
     }
 
-    this.setData({ todayCheckin })
+    // SWR: show cached checkin immediately, refresh in background
+    const cached = swr<Checkin | null>(
+      `checkin_${today}`,
+      async () => {
+        const checkins = await getTodayCheckin()
+        return checkins.find(c => c.date === today) ?? null
+      },
+      (fresh) => this._applyCheckin(fresh),
+    )
 
-    if (todayCheckin && !this._greeted) {
+    this._applyCheckin(cached)
+  },
+
+  _applyCheckin(checkin: Checkin | null) {
+    this.setData({ todayCheckin: checkin, pageEntered: true })
+    const storeState = store.getState()
+    if (checkin && !this._greeted) {
       this._greeted = true
       const existing = storeState.chatHistory
       if (existing.length > 0) {
         this.setData({ chatMessages: existing })
       } else {
-        this._openAIGreeting(todayCheckin)
+        this._openAIGreeting(checkin)
       }
     }
   },
