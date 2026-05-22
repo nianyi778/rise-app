@@ -85,7 +85,7 @@ Page<ReportData, AnyObject>({
   _renderReport(raw: WeeklyReport) {
     const dailyData: DailyDisplayItem[] = raw.dailyData.map(d => ({
       ...d,
-      dayShort: WEEK_DAYS[new Date(d.date).getDay()] ?? '',
+      dayShort: WEEK_DAYS[new Date(d.date + 'T00:00:00').getDay()] ?? '',
     }))
     const totalFocusHours = (raw.totalFocusMin / 60).toFixed(1)
     const focusMax = (raw.totalDays * 30) || 210

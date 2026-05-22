@@ -57,7 +57,7 @@ Page({
     _renderReport(raw) {
         const dailyData = raw.dailyData.map(d => {
             var _a;
-            return (Object.assign(Object.assign({}, d), { dayShort: (_a = WEEK_DAYS[new Date(d.date).getDay()]) !== null && _a !== void 0 ? _a : '' }));
+            return (Object.assign(Object.assign({}, d), { dayShort: (_a = WEEK_DAYS[new Date(d.date + 'T00:00:00').getDay()]) !== null && _a !== void 0 ? _a : '' }));
         });
         const totalFocusHours = (raw.totalFocusMin / 60).toFixed(1);
         const focusMax = (raw.totalDays * 30) || 210;

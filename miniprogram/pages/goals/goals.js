@@ -55,32 +55,47 @@ Page({
         }
     },
     async loadGoals() {
-        var _a;
+        const cached = wx.getStorageSync('goals_data');
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this._renderGoals(cached);
+            this.setData({ loading: false });
+            (0, index_1.getGoals)().then(fresh => {
+                wx.setStorageSync('goals_data', fresh);
+                this._renderGoals(fresh);
+            }).catch(() => { });
+            return;
+        }
         this.setData({ loading: true });
         try {
             const rawGoals = await (0, index_1.getGoals)();
-            const { userInfo, todaySession } = index_2.store.getState();
-            const isPro = (userInfo === null || userInfo === void 0 ? void 0 : userInfo.plan) === 'pro';
-            const maxGoals = isPro ? 5 : 1;
-            const displayGoals = rawGoals.map((g) => {
-                var _a, _b;
-                const dayIndex = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
-                    ? ((_a = todaySession === null || todaySession === void 0 ? void 0 : todaySession.dayIndex) !== null && _a !== void 0 ? _a : 1)
-                    : 1;
-                const todayAction = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
-                    ? ((_b = todaySession === null || todaySession === void 0 ? void 0 : todaySession.action) !== null && _b !== void 0 ? _b : '')
-                    : '';
-                return toDisplayItem(g, dayIndex, todayAction);
-            });
-            const activeGoal = (_a = rawGoals.find((g) => g.status === 'active')) !== null && _a !== void 0 ? _a : null;
-            if (activeGoal)
-                index_2.store.setCurrentGoal(activeGoal);
-            this.setData({ goals: displayGoals, isPro, maxGoals, loading: false });
+            wx.setStorageSync('goals_data', rawGoals);
+            this._renderGoals(rawGoals);
+            this.setData({ loading: false });
         }
         catch (_) {
             this.setData({ loading: false });
             wx.showToast({ title: '加载失败', icon: 'none' });
         }
+    },
+    _renderGoals(rawGoals) {
+        var _a;
+        const { userInfo, todaySession } = index_2.store.getState();
+        const isPro = (userInfo === null || userInfo === void 0 ? void 0 : userInfo.plan) === 'pro';
+        const maxGoals = isPro ? 5 : 1;
+        const displayGoals = rawGoals.map((g) => {
+            var _a, _b;
+            const dayIndex = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
+                ? ((_a = todaySession === null || todaySession === void 0 ? void 0 : todaySession.dayIndex) !== null && _a !== void 0 ? _a : 1)
+                : 1;
+            const todayAction = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
+                ? ((_b = todaySession === null || todaySession === void 0 ? void 0 : todaySession.action) !== null && _b !== void 0 ? _b : '')
+                : '';
+            return toDisplayItem(g, dayIndex, todayAction);
+        });
+        const activeGoal = (_a = rawGoals.find((g) => g.status === 'active')) !== null && _a !== void 0 ? _a : null;
+        if (activeGoal)
+            index_2.store.setCurrentGoal(activeGoal);
+        this.setData({ goals: displayGoals, isPro, maxGoals });
     },
     onGoalTap(e) {
         const goalId = e.currentTarget.dataset['id'];
@@ -96,7 +111,7 @@ Page({
             this.setData({ showUpgrade: true });
             return;
         }
-        wx.navigateTo({ url: '/pages/welcome/welcome' });
+        wx.navigateTo({ url: '/pages/welcome/welcome?mode=add' });
     },
     onCloseUpgrade() {
         this.setData({ showUpgrade: false });
@@ -125,6 +140,7 @@ Page({
     async _updateStatus(goalId, status) {
         try {
             await (0, index_1.updateGoalStatus)(goalId, status);
+            wx.removeStorageSync('goals_data');
             await this.loadGoals();
         }
         catch (_) {

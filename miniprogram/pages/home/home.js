@@ -45,8 +45,10 @@ Page({
             // silent background refresh
             (0, index_1.getGoals)().then(goals => {
                 const g = goals.find(g => g.status === 'active');
-                if (!g)
+                if (!g) {
+                    wx.removeStorageSync('home_data');
                     return;
+                }
                 return (0, index_1.getTodaySession)(g._id).then(s => {
                     wx.setStorageSync('home_data', { goal: g, session: s });
                     this._renderData(g, s);
@@ -59,7 +61,7 @@ Page({
             const goals = await (0, index_1.getGoals)();
             const activeGoal = goals.find(g => g.status === 'active') || null;
             if (!activeGoal) {
-                wx.reLaunch({ url: '/pages/welcome/welcome' });
+                wx.switchTab({ url: '/pages/goals/goals' });
                 return;
             }
             const session = await (0, index_1.getTodaySession)(activeGoal._id);

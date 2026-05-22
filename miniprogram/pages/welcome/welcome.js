@@ -35,13 +35,16 @@ Page({
             { key: 'night', label: '睡前', desc: '安静，适合思考型任务', value: '22:00' },
         ],
     },
-    onLoad() {
+    onLoad(options) {
         var _a;
         const sys = wx.getSystemInfoSync();
         this.setData({
             windowH: `${sys.windowHeight}px`,
             statusBarH: `${(_a = sys.statusBarHeight) !== null && _a !== void 0 ? _a : 44}px`,
         });
+        // mode=add: coming from goals page to add another goal — skip redirect
+        if (options['mode'] === 'add')
+            return;
         const { hasOnboarded, currentGoal } = index_2.store.getState();
         if (hasOnboarded && currentGoal) {
             // defer to avoid "non-empty page stack" error during appLaunch
@@ -126,6 +129,8 @@ Page({
                 currentGoal: result.goal,
                 todaySession: result.session,
             });
+            wx.setStorageSync('hasOnboarded', true);
+            wx.removeStorageSync('home_data');
             wx.reLaunch({ url: '/pages/home/home' });
         }
         catch (_err) {

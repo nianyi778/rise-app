@@ -31,6 +31,14 @@
           <view class="skeleton-pc skeleton" style="margin-top:12rpx;"/>
         </block>
 
+        <!-- ── 加载失败空态 ── -->
+        <block wx:elif="{{!goal || !session}}">
+          <view class="empty-retry">
+            <text class="empty-retry-txt">暂无任务数据</text>
+            <button class="empty-retry-btn glass" bindtap="loadData">重新加载</button>
+          </view>
+        </block>
+
         <!-- ── 主内容 ── -->
         <block wx:else>
 

@@ -82,31 +82,48 @@ Page<GoalsData, AnyObject>({
   },
 
   async loadGoals() {
+    const cached = wx.getStorageSync('goals_data') as Goal[] | ''
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      this._renderGoals(cached)
+      this.setData({ loading: false })
+      getGoals().then(fresh => {
+        wx.setStorageSync('goals_data', fresh)
+        this._renderGoals(fresh)
+      }).catch(() => {})
+      return
+    }
+
     this.setData({ loading: true })
     try {
       const rawGoals = await getGoals()
-      const { userInfo, todaySession } = store.getState()
-      const isPro = userInfo?.plan === 'pro'
-      const maxGoals = isPro ? 5 : 1
-
-      const displayGoals: GoalDisplayItem[] = rawGoals.map((g: Goal) => {
-        const dayIndex = (todaySession?.goalId === g._id)
-          ? (todaySession?.dayIndex ?? 1)
-          : 1
-        const todayAction = (todaySession?.goalId === g._id)
-          ? (todaySession?.action ?? '')
-          : ''
-        return toDisplayItem(g, dayIndex, todayAction)
-      })
-
-      const activeGoal = rawGoals.find((g: Goal) => g.status === 'active') ?? null
-      if (activeGoal) store.setCurrentGoal(activeGoal)
-
-      this.setData({ goals: displayGoals, isPro, maxGoals, loading: false })
+      wx.setStorageSync('goals_data', rawGoals)
+      this._renderGoals(rawGoals)
+      this.setData({ loading: false })
     } catch (_) {
       this.setData({ loading: false })
       wx.showToast({ title: '加载失败', icon: 'none' })
     }
+  },
+
+  _renderGoals(rawGoals: Goal[]) {
+    const { userInfo, todaySession } = store.getState()
+    const isPro = userInfo?.plan === 'pro'
+    const maxGoals = isPro ? 5 : 1
+
+    const displayGoals: GoalDisplayItem[] = rawGoals.map((g: Goal) => {
+      const dayIndex = (todaySession?.goalId === g._id)
+        ? (todaySession?.dayIndex ?? 1)
+        : 1
+      const todayAction = (todaySession?.goalId === g._id)
+        ? (todaySession?.action ?? '')
+        : ''
+      return toDisplayItem(g, dayIndex, todayAction)
+    })
+
+    const activeGoal = rawGoals.find((g: Goal) => g.status === 'active') ?? null
+    if (activeGoal) store.setCurrentGoal(activeGoal)
+
+    this.setData({ goals: displayGoals, isPro, maxGoals })
   },
 
   onGoalTap(e: WechatMiniprogram.TouchEvent) {
@@ -123,7 +140,7 @@ Page<GoalsData, AnyObject>({
       this.setData({ showUpgrade: true })
       return
     }
-    wx.navigateTo({ url: '/pages/welcome/welcome' })
+    wx.navigateTo({ url: '/pages/welcome/welcome?mode=add' })
   },
 
   onCloseUpgrade() {
@@ -156,6 +173,7 @@ Page<GoalsData, AnyObject>({
   async _updateStatus(goalId: string, status: GoalStatus) {
     try {
       await updateGoalStatus(goalId, status)
+      wx.removeStorageSync('goals_data')
       await this.loadGoals()
     } catch (_) {
       wx.showToast({ title: '操作失败', icon: 'none' })

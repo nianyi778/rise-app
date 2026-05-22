@@ -119,8 +119,10 @@ Page({
         }
         const state = index_2.store.getState();
         const session = state.todaySession;
-        if (!session)
+        if (!session) {
+            wx.showToast({ title: '数据异常，请返回重试', icon: 'none' });
             return;
+        }
         const payload = {
             sessionId: session._id,
             goalId: session.goalId,

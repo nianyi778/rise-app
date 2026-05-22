@@ -78,13 +78,16 @@ Page({
         }
     },
     _openAIGreeting(checkin) {
-        var _a;
-        const { currentGoal, todaySession } = index_2.store.getState();
+        var _a, _b;
+        const state = index_2.store.getState();
+        const homeCache = wx.getStorageSync('home_data');
+        const currentGoal = (_a = state.currentGoal) !== null && _a !== void 0 ? _a : (homeCache && homeCache.goal ? homeCache.goal : null);
+        const { todaySession } = state;
         if (!currentGoal)
             return;
         const initMsg = {
             role: 'user',
-            content: `我刚完成了今天的目标：${(_a = todaySession === null || todaySession === void 0 ? void 0 : todaySession.action) !== null && _a !== void 0 ? _a : '今日任务'}。心情：${checkin.mood}。${checkin.note ? '备注：' + checkin.note : ''}`,
+            content: `我刚完成了今天的目标：${(_b = todaySession === null || todaySession === void 0 ? void 0 : todaySession.action) !== null && _b !== void 0 ? _b : '今日任务'}。心情：${checkin.mood}。${checkin.note ? '备注：' + checkin.note : ''}`,
             timestamp: Date.now(),
         };
         this.setData({ replying: true, streamingText: '' });

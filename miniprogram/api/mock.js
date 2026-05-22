@@ -164,7 +164,7 @@ function mockStreamChatMessage(_goalId, _checkinId, messages, onChunk, onDone, _
             onDone();
         }
     }, 40);
-    return {};
+    return { abort: () => clearInterval(timer) };
 }
 async function mockGetWeeklyReport(_weekOffset = 0) {
     await delay(400);

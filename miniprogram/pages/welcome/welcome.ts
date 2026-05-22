@@ -72,12 +72,15 @@ Page<WelcomeData, AnyObject>({
     ],
   },
 
-  onLoad() {
+  onLoad(options: Record<string, string>) {
     const sys = wx.getSystemInfoSync()
     this.setData({
       windowH: `${sys.windowHeight}px`,
       statusBarH: `${sys.statusBarHeight ?? 44}px`,
     })
+
+    // mode=add: coming from goals page to add another goal — skip redirect
+    if (options['mode'] === 'add') return
 
     const { hasOnboarded, currentGoal } = store.getState()
     if (hasOnboarded && currentGoal) {
@@ -180,6 +183,8 @@ Page<WelcomeData, AnyObject>({
         currentGoal: result.goal,
         todaySession: result.session,
       })
+      wx.setStorageSync('hasOnboarded', true)
+      wx.removeStorageSync('home_data')
       wx.reLaunch({ url: '/pages/home/home' })
     } catch (_err) {
       this.setData({ submitting: false })

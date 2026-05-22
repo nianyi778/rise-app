@@ -31,7 +31,6 @@
             wx:for="{{goals}}"
             wx:key="_id"
             class="gc glass {{pageEntered ? 'entered' : ''}}"
-            style="animation-delay:{{index * 80}}ms"
             bindtap="onGoalTap"
             data-id="{{item._id}}"
           >

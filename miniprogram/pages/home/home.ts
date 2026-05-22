@@ -63,7 +63,7 @@ Page<HomeData, AnyObject>({
       // silent background refresh
       getGoals().then(goals => {
         const g = goals.find(g => g.status === 'active')
-        if (!g) return
+        if (!g) { wx.removeStorageSync('home_data'); return }
         return getTodaySession(g._id).then(s => {
           wx.setStorageSync('home_data', { goal: g, session: s })
           this._renderData(g, s)
@@ -76,7 +76,7 @@ Page<HomeData, AnyObject>({
     try {
       const goals = await getGoals()
       const activeGoal = goals.find(g => g.status === 'active') || null
-      if (!activeGoal) { wx.reLaunch({ url: '/pages/welcome/welcome' }); return }
+      if (!activeGoal) { wx.switchTab({ url: '/pages/goals/goals' }); return }
       const session = await getTodaySession(activeGoal._id)
       wx.setStorageSync('home_data', { goal: activeGoal, session })
       this._renderData(activeGoal, session)

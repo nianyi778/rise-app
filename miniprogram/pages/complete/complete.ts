@@ -158,7 +158,10 @@ Page<CompleteData, AnyObject>({
 
     const state = store.getState()
     const session = state.todaySession
-    if (!session) return
+    if (!session) {
+      wx.showToast({ title: '数据异常，请返回重试', icon: 'none' })
+      return
+    }
 
     const payload: CheckinPayload = {
       sessionId: session._id,

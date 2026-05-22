@@ -304,12 +304,17 @@ export async function getWeeklyReport(weekOffset = 0): Promise<WeeklyReport> {
     status: s.status as WeeklyReport['dailyData'][0]['status'],
   }))
 
+  let streakMax = 0, cur = 0
+  for (const s of dailyData) {
+    if (s.status === 'done') { cur++; streakMax = Math.max(streakMax, cur) } else { cur = 0 }
+  }
+
   return {
     weekLabel: `${res.week.monday} ~ ${res.week.sunday}`,
     completedDays: res.week.completedDays,
     totalDays: res.week.totalDays,
     totalFocusMin,
-    streakMax: 0,
+    streakMax,
     highlight: res.insight.breakthrough,
     aiObservation: res.insight.observation,
     nextWeekDirection: res.insight.nextWeekDirection,

@@ -1,7 +1,6 @@
 {
   "pages": [
     "pages/welcome/welcome",
-    "pages/wizard/wizard",
     "pages/home/home",
     "pages/focus/focus",
     "pages/complete/complete",

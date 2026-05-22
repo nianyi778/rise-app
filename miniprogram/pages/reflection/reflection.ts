@@ -91,7 +91,11 @@ Page<ReflectionData, AnyObject>({
   },
 
   _openAIGreeting(checkin: Checkin) {
-    const { currentGoal, todaySession } = store.getState()
+    const state = store.getState()
+    type HomeCache = { goal: import('../../types/index').Goal; session: import('../../types/index').Session }
+    const homeCache = wx.getStorageSync('home_data') as HomeCache | ''
+    const currentGoal = state.currentGoal ?? (homeCache && homeCache.goal ? homeCache.goal : null)
+    const { todaySession } = state
     if (!currentGoal) return
 
     const initMsg: ChatMessage = {

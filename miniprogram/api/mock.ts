@@ -178,7 +178,7 @@ export function mockStreamChatMessage(
     }
   }, 40)
 
-  return {} as WechatMiniprogram.RequestTask
+  return { abort: () => clearInterval(timer) } as unknown as WechatMiniprogram.RequestTask
 }
 
 export async function mockGetWeeklyReport(_weekOffset = 0): Promise<WeeklyReport> {
