@@ -145,29 +145,31 @@
   margin-top: 8rpx;
 }
 
-/* ─── 返回按钮 ───────────────────────────────── */
-.back-btn {
+/* ─── 步骤头部（返回 + 步骤数同行） ─────────── */
+.step-hd {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  margin-bottom: 40rpx;
-  width: fit-content;
+  gap: 16rpx;
+  margin-bottom: 36rpx;
 }
 
-.back-txt {
-  font-size: 28rpx;
-  color: var(--ink-soft);
-  font-weight: 600;
+.back-btn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.60);
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* ─── Step 1/2：向导通用 ────────────────────── */
 .wiz-step {
-  display: block;
   font-size: 24rpx;
   font-weight: 800;
   color: var(--rose);
   letter-spacing: 2rpx;
-  margin-bottom: 20rpx;
 }
 
 .wiz-q {
