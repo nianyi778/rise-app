@@ -149,13 +149,13 @@
 .step-hd {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 20rpx;
   margin-bottom: 40rpx;
 }
 
 .back-btn {
-  width: 72rpx;
-  height: 72rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: 50%;
   background: rgba(255,255,255,0.85);
   box-shadow: 0 4rpx 16rpx rgba(50,36,90,0.10);
@@ -163,6 +163,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.back-arrow {
+  font-size: 36rpx;
+  color: var(--ink-mid);
+  line-height: 1;
+  margin-top: -2rpx;
 }
 
 /* ─── Step 1/2：向导通用 ────────────────────── */
