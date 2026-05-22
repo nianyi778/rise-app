@@ -1,11 +1,5 @@
 <!-- PAGE 01 · WELCOME — 3步引导流 -->
 <view class="wrap" style="min-height: {{windowH}};">
-  <!-- 固定背景 -->
-  <view class="bg-mesh">
-    <view class="bg-glow-rose"/>
-    <view class="bg-glow-violet"/>
-  </view>
-
   <!-- 状态栏占位 -->
   <view style="height: {{statusBarH}}; flex-shrink: 0;"/>
 

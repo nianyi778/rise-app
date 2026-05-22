@@ -73,16 +73,19 @@ Page<WelcomeData, AnyObject>({
   },
 
   onLoad() {
-    const { hasOnboarded, currentGoal } = store.getState()
-    if (hasOnboarded && currentGoal) {
-      wx.switchTab({ url: '/pages/home/home' })
-      return
-    }
     const sys = wx.getSystemInfoSync()
     this.setData({
       windowH: `${sys.windowHeight}px`,
       statusBarH: `${sys.statusBarHeight ?? 44}px`,
     })
+
+    const { hasOnboarded, currentGoal } = store.getState()
+    if (hasOnboarded && currentGoal) {
+      // defer to avoid "non-empty page stack" error during appLaunch
+      wx.nextTick(() => {
+        wx.switchTab({ url: '/pages/home/home' })
+      })
+    }
   },
 
   onInputChange(e: WechatMiniprogram.Input) {

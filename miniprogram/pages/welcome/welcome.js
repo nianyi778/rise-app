@@ -37,16 +37,18 @@ Page({
     },
     onLoad() {
         var _a;
-        const { hasOnboarded, currentGoal } = index_2.store.getState();
-        if (hasOnboarded && currentGoal) {
-            wx.switchTab({ url: '/pages/home/home' });
-            return;
-        }
         const sys = wx.getSystemInfoSync();
         this.setData({
             windowH: `${sys.windowHeight}px`,
             statusBarH: `${(_a = sys.statusBarHeight) !== null && _a !== void 0 ? _a : 44}px`,
         });
+        const { hasOnboarded, currentGoal } = index_2.store.getState();
+        if (hasOnboarded && currentGoal) {
+            // defer to avoid "non-empty page stack" error during appLaunch
+            wx.nextTick(() => {
+                wx.switchTab({ url: '/pages/home/home' });
+            });
+        }
     },
     onInputChange(e) {
         this.setData({ rawInput: e.detail.value });
