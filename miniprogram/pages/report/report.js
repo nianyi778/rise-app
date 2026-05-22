@@ -21,11 +21,12 @@ Page({
         },
     },
     async onShow() {
-        this.setData({ pageEntered: false });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 2 });
         await this.loadReport();
-        setTimeout(() => this.setData({ pageEntered: true }), 50);
+        if (!this.data.pageEntered) {
+            setTimeout(() => this.setData({ pageEntered: true }), 50);
+        }
     },
     async loadReport() {
         const { weekOffset } = this.data;

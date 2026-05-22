@@ -47,11 +47,12 @@ Page({
         ],
     },
     async onShow() {
-        this.setData({ pageEntered: false });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 3 });
         await this.loadGoals();
-        setTimeout(() => this.setData({ pageEntered: true }), 50);
+        if (!this.data.pageEntered) {
+            setTimeout(() => this.setData({ pageEntered: true }), 50);
+        }
     },
     async loadGoals() {
         var _a;

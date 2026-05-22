@@ -18,11 +18,13 @@ Page({
     },
     async onShow() {
         const today = new Date().toISOString().slice(0, 10);
-        this.setData({ dateLabel: (0, index_3.friendlyDate)(today), pageEntered: false });
+        this.setData({ dateLabel: (0, index_3.friendlyDate)(today) });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 1 });
         await this._loadCheckin();
-        setTimeout(() => this.setData({ pageEntered: true }), 50);
+        if (!this.data.pageEntered) {
+            setTimeout(() => this.setData({ pageEntered: true }), 50);
+        }
     },
     async _loadCheckin() {
         var _a, _b;

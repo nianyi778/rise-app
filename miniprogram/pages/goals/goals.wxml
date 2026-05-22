@@ -61,6 +61,10 @@
               <text class="gact {{item.isActive ? 'rose' : 'muted'}}">
                 {{item.isActive ? (item.todayAction ? item.todayAction : '今日待生成') : '已暂停'}}
               </text>
+              <view class="gc-actions">
+                <button wx:if="{{item.isActive}}" class="g-status-btn pause" catchtap="onPauseGoal" data-id="{{item._id}}">暂停</button>
+                <button wx:else class="g-status-btn resume" catchtap="onResumeGoal" data-id="{{item._id}}">继续</button>
+              </view>
             </view>
 
             <!-- 箭头 SVG -->

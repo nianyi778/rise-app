@@ -46,11 +46,12 @@ Page<ReportData, AnyObject>({
   },
 
   async onShow() {
-    this.setData({ pageEntered: false })
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 2 })
     await this.loadReport()
-    setTimeout(() => this.setData({ pageEntered: true }), 50)
+    if (!this.data.pageEntered) {
+      setTimeout(() => this.setData({ pageEntered: true }), 50)
+    }
   },
 
   async loadReport() {

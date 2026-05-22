@@ -209,15 +209,29 @@ Page({
         }
     },
     _goComplete() {
-        // 把当前段（若仍在运行）的时长也算进去
+        var _a, _b;
         if (this._segmentStart > 0) {
             this._accumulatedSec += Math.round((Date.now() - this._segmentStart) / 1000);
             this._segmentStart = 0;
         }
         const focusMin = Math.max(1, Math.round(this._accumulatedSec / 60));
         wx.setKeepScreenOn({ keepScreenOn: false });
+        const { currentGoal, todaySession } = index_1.store.getState();
+        const nextDay = ((_a = todaySession === null || todaySession === void 0 ? void 0 : todaySession.dayIndex) !== null && _a !== void 0 ? _a : 0) + 1;
+        let tomorrowAction = '';
+        if ((_b = currentGoal === null || currentGoal === void 0 ? void 0 : currentGoal.aiPlan) === null || _b === void 0 ? void 0 : _b.dailyActions) {
+            for (const da of currentGoal.aiPlan.dailyActions) {
+                const parts = da.dayRange.split('-');
+                const start = parseInt(parts[0], 10);
+                const end = parts[1] ? parseInt(parts[1], 10) : start;
+                if (nextDay >= start && nextDay <= end) {
+                    tomorrowAction = da.example || da.theme;
+                    break;
+                }
+            }
+        }
         wx.navigateTo({
-            url: `/pages/complete/complete?focusMin=${focusMin}&sessionId=${this._sessionId}`,
+            url: `/pages/complete/complete?focusMin=${focusMin}&sessionId=${this._sessionId}&tomorrowAction=${encodeURIComponent(tomorrowAction)}`,
         });
     },
 });

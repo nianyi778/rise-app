@@ -31,13 +31,15 @@ Page<ReflectionData, AnyObject>({
 
   async onShow() {
     const today = new Date().toISOString().slice(0, 10)
-    this.setData({ dateLabel: friendlyDate(today), pageEntered: false })
+    this.setData({ dateLabel: friendlyDate(today) })
 
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 1 })
 
     await this._loadCheckin()
-    setTimeout(() => this.setData({ pageEntered: true }), 50)
+    if (!this.data.pageEntered) {
+      setTimeout(() => this.setData({ pageEntered: true }), 50)
+    }
   },
 
   async _loadCheckin() {

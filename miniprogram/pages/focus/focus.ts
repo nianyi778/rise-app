@@ -250,15 +250,30 @@ Page<FocusData, AnyObject>({
   },
 
   _goComplete() {
-    // 把当前段（若仍在运行）的时长也算进去
     if (this._segmentStart > 0) {
       this._accumulatedSec += Math.round((Date.now() - this._segmentStart) / 1000)
       this._segmentStart = 0
     }
     const focusMin = Math.max(1, Math.round(this._accumulatedSec / 60))
     wx.setKeepScreenOn({ keepScreenOn: false })
+
+    const { currentGoal, todaySession } = store.getState()
+    const nextDay = (todaySession?.dayIndex ?? 0) + 1
+    let tomorrowAction = ''
+    if (currentGoal?.aiPlan?.dailyActions) {
+      for (const da of currentGoal.aiPlan.dailyActions) {
+        const parts = da.dayRange.split('-')
+        const start = parseInt(parts[0], 10)
+        const end = parts[1] ? parseInt(parts[1], 10) : start
+        if (nextDay >= start && nextDay <= end) {
+          tomorrowAction = da.example || da.theme
+          break
+        }
+      }
+    }
+
     wx.navigateTo({
-      url: `/pages/complete/complete?focusMin=${focusMin}&sessionId=${this._sessionId}`,
+      url: `/pages/complete/complete?focusMin=${focusMin}&sessionId=${this._sessionId}&tomorrowAction=${encodeURIComponent(tomorrowAction)}`,
     })
   },
 })
