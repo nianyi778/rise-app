@@ -154,24 +154,15 @@
 }
 
 .back-btn {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 4rpx 16rpx rgba(50,36,90,0.10);
   display: flex;
   align-items: center;
-  gap: 4rpx;
-  padding: 8rpx 0;
-}
-
-.back-arrow {
-  font-size: 52rpx;
-  line-height: 1;
-  color: var(--ink-mid);
-  font-weight: 300;
-  margin-top: -4rpx;
-}
-
-.back-txt {
-  font-size: 28rpx;
-  color: var(--ink-soft);
-  font-weight: 600;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* ─── Step 1/2：向导通用 ────────────────────── */
