@@ -16,10 +16,10 @@ Page({
         isNewRecord: false,
         sharing: false,
         moods: [
-            { key: 'hard', emoji: '😓', label: '有点难' },
-            { key: 'ok', emoji: '😐', label: '还好' },
-            { key: 'good', emoji: '😊', label: '不错' },
-            { key: 'great', emoji: '🚀', label: '超棒' },
+            { key: 'hard', label: '有点难' },
+            { key: 'ok', label: '还好' },
+            { key: 'good', label: '不错' },
+            { key: 'great', label: '超棒' },
         ],
     },
     onLoad(options) {

@@ -76,7 +76,6 @@
               bindtap="onSelectMood"
               data-key="{{item.key}}"
             >
-              <text class="mb-e">{{item.emoji}}</text>
               <text class="mb-t">{{item.label}}</text>
             </button>
           </view>

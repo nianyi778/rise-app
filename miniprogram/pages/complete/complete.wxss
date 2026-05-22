@@ -143,47 +143,39 @@
 
 .mb {
   flex: 1;
-  max-width: 144rpx;
-  aspect-ratio: 1;
+  height: 72rpx;
   background: var(--glass);
   backdrop-filter: var(--blur-sm);
   -webkit-backdrop-filter: var(--blur-sm);
-  border: 1rpx solid rgba(27, 25, 40, 0.08);
-  border-radius: 32rpx;
+  border: 1.5rpx solid rgba(27, 25, 40, 0.10);
+  border-radius: 100rpx;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
   font-family: inherit;
   transition: all 200ms var(--spring);
   box-shadow: var(--sg);
 }
 
-/* 选中态：--rose 描边 + scale(1.08) */
 .mb.on {
-  border: 2rpx solid var(--rose);
-  transform: scale(1.08);
-  box-shadow: 0 0 0 4rpx var(--rose-glow), var(--sg);
+  background: var(--rose);
+  border-color: var(--rose);
+  box-shadow: 0 8rpx 24rpx rgba(224,104,68,0.28);
 }
 
 .mb:active {
-  transform: scale(0.96);
-}
-
-.mb-e {
-  font-size: 44rpx;
+  transform: scale(0.95);
 }
 
 .mb-t {
-  font-size: 20rpx;
-  color: var(--ink-soft);
-  font-weight: 800;
+  font-size: 26rpx;
+  color: var(--ink-mid);
+  font-weight: 700;
 }
 
 .mb.on .mb-t {
-  color: var(--rose);
-  font-weight: 900;
+  color: #fff;
+  font-weight: 800;
 }
 
 /* ── 备注卡片 ── */

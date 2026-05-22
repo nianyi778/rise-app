@@ -27,7 +27,7 @@ interface CompleteData {
   submitted: boolean
   isNewRecord: boolean
   sharing: boolean
-  moods: Array<{ key: MoodType; emoji: string; label: string }>
+  moods: Array<{ key: MoodType; label: string }>
 }
 
 Page<CompleteData, AnyObject>({
@@ -43,10 +43,10 @@ Page<CompleteData, AnyObject>({
     isNewRecord: false,
     sharing: false,
     moods: [
-      { key: 'hard',  emoji: '😓', label: '有点难' },
-      { key: 'ok',    emoji: '😐', label: '还好'   },
-      { key: 'good',  emoji: '😊', label: '不错'   },
-      { key: 'great', emoji: '🚀', label: '超棒'   },
+      { key: 'hard',  label: '有点难' },
+      { key: 'ok',    label: '还好'   },
+      { key: 'good',  label: '不错'   },
+      { key: 'great', label: '超棒'   },
     ],
   },
 
