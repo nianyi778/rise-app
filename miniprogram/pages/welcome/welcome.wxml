@@ -59,9 +59,8 @@
   <view class="step-inner" wx:elif="{{currentStep === 1}}">
     <view class="step-hd">
       <view class="back-btn" bindtap="onBack">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
+        <text class="back-arrow">‹</text>
+        <text class="back-txt">返回</text>
       </view>
       <text class="wiz-step">问题 2 / 3</text>
     </view>
@@ -95,9 +94,8 @@
   <view class="step-inner" wx:elif="{{currentStep === 2}}">
     <view class="step-hd">
       <view class="back-btn" bindtap="onBack">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B1928" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
+        <text class="back-arrow">‹</text>
+        <text class="back-txt">返回</text>
       </view>
       <text class="wiz-step">问题 3 / 3</text>
     </view>
