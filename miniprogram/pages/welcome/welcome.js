@@ -74,6 +74,12 @@ Page({
     onSliderChange(e) {
         this.setData({ dailyMinutes: e.detail.value });
     },
+    onBack() {
+        const { currentStep } = this.data;
+        if (currentStep > 0) {
+            this.setData({ currentStep: currentStep - 1 });
+        }
+    },
     onNext() {
         const { currentStep, rawInput, selectedCategory, selectedBlocker } = this.data;
         if (currentStep === 0) {

@@ -145,6 +145,21 @@
   margin-top: 8rpx;
 }
 
+/* ─── 返回按钮 ───────────────────────────────── */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 40rpx;
+  width: fit-content;
+}
+
+.back-txt {
+  font-size: 28rpx;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
 /* ─── Step 1/2：向导通用 ────────────────────── */
 .wiz-step {
   display: block;
