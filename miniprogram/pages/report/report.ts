@@ -1,6 +1,5 @@
 import { getWeeklyReport } from '../../api/index'
 import { calcDashOffset } from '../../utils/index'
-import { swr } from '../../utils/cache'
 import type { WeeklyReport, SessionStatus, MoodType } from '../../types/index'
 
 interface DailyDisplayItem {
@@ -46,42 +45,51 @@ Page<ReportData, AnyObject>({
     },
   },
 
-  onShow() {
+  async onShow() {
+    this.setData({ pageEntered: false })
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 2 })
-    this._loadReport()
+    await this.loadReport()
+    setTimeout(() => this.setData({ pageEntered: true }), 50)
   },
 
-  _loadReport() {
+  async loadReport() {
     const { weekOffset } = this.data
     const cacheKey = `report_${weekOffset}`
 
-    const cached = swr<WeeklyReport>(
-      cacheKey,
-      () => getWeeklyReport(weekOffset),
-      (fresh) => this._applyReport(fresh),
-    )
+    const cached = wx.getStorageSync(cacheKey) as WeeklyReport | ''
+    if (cached && cached.dailyData) {
+      this._renderReport(cached)
+      this.setData({ loading: false })
+      // silent background refresh
+      getWeeklyReport(weekOffset).then(fresh => {
+        wx.setStorageSync(cacheKey, fresh)
+        this._renderReport(fresh)
+      }).catch(() => {})
+      return
+    }
 
-    if (cached) {
-      this._applyReport(cached)
-    } else {
-      this.setData({ loading: true })
+    this.setData({ loading: true })
+    try {
+      const raw = await getWeeklyReport(weekOffset)
+      wx.setStorageSync(cacheKey, raw)
+      this._renderReport(raw)
+      this.setData({ loading: false })
+    } catch {
+      this.setData({ loading: false })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     }
   },
 
-  _applyReport(raw: WeeklyReport) {
+  _renderReport(raw: WeeklyReport) {
     const dailyData: DailyDisplayItem[] = raw.dailyData.map(d => ({
       ...d,
       dayShort: WEEK_DAYS[new Date(d.date).getDay()] ?? '',
     }))
-
     const totalFocusHours = (raw.totalFocusMin / 60).toFixed(1)
     const focusMax = (raw.totalDays * 30) || 210
-
     this.setData({
       report: { ...raw, dailyData },
-      loading: false,
-      pageEntered: true,
       ringData: {
         checkinDash: ringDash(raw.completedDays, raw.totalDays),
         focusDash: ringDash(raw.totalFocusMin, focusMax),
@@ -93,13 +101,13 @@ Page<ReportData, AnyObject>({
 
   onPrevWeek() {
     this.setData({ weekOffset: this.data.weekOffset + 1 })
-    this._loadReport()
+    this.loadReport()
   },
 
   onNextWeek() {
     if (this.data.weekOffset <= 0) return
     this.setData({ weekOffset: this.data.weekOffset - 1 })
-    this._loadReport()
+    this.loadReport()
   },
 
   onShare() {

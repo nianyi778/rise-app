@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../../api/index");
 const index_2 = require("../../utils/index");
-const cache_1 = require("../../utils/cache");
 const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
 function ringDash(value, max) {
     const progress = max > 0 ? Math.min(1, value / max) : 0;
@@ -21,23 +20,40 @@ Page({
             totalFocusHours: '0',
         },
     },
-    onShow() {
+    async onShow() {
+        this.setData({ pageEntered: false });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 2 });
-        this._loadReport();
+        await this.loadReport();
+        setTimeout(() => this.setData({ pageEntered: true }), 50);
     },
-    _loadReport() {
+    async loadReport() {
         const { weekOffset } = this.data;
         const cacheKey = `report_${weekOffset}`;
-        const cached = (0, cache_1.swr)(cacheKey, () => (0, index_1.getWeeklyReport)(weekOffset), (fresh) => this._applyReport(fresh));
-        if (cached) {
-            this._applyReport(cached);
+        const cached = wx.getStorageSync(cacheKey);
+        if (cached && cached.dailyData) {
+            this._renderReport(cached);
+            this.setData({ loading: false });
+            // silent background refresh
+            (0, index_1.getWeeklyReport)(weekOffset).then(fresh => {
+                wx.setStorageSync(cacheKey, fresh);
+                this._renderReport(fresh);
+            }).catch(() => { });
+            return;
         }
-        else {
-            this.setData({ loading: true });
+        this.setData({ loading: true });
+        try {
+            const raw = await (0, index_1.getWeeklyReport)(weekOffset);
+            wx.setStorageSync(cacheKey, raw);
+            this._renderReport(raw);
+            this.setData({ loading: false });
+        }
+        catch (_a) {
+            this.setData({ loading: false });
+            wx.showToast({ title: '加载失败', icon: 'none' });
         }
     },
-    _applyReport(raw) {
+    _renderReport(raw) {
         const dailyData = raw.dailyData.map(d => {
             var _a;
             return (Object.assign(Object.assign({}, d), { dayShort: (_a = WEEK_DAYS[new Date(d.date).getDay()]) !== null && _a !== void 0 ? _a : '' }));
@@ -46,8 +62,6 @@ Page({
         const focusMax = (raw.totalDays * 30) || 210;
         this.setData({
             report: Object.assign(Object.assign({}, raw), { dailyData }),
-            loading: false,
-            pageEntered: true,
             ringData: {
                 checkinDash: ringDash(raw.completedDays, raw.totalDays),
                 focusDash: ringDash(raw.totalFocusMin, focusMax),
@@ -58,13 +72,13 @@ Page({
     },
     onPrevWeek() {
         this.setData({ weekOffset: this.data.weekOffset + 1 });
-        this._loadReport();
+        this.loadReport();
     },
     onNextWeek() {
         if (this.data.weekOffset <= 0)
             return;
         this.setData({ weekOffset: this.data.weekOffset - 1 });
-        this._loadReport();
+        this.loadReport();
     },
     onShare() {
         wx.showShareMenu({ withShareTicket: true });

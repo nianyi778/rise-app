@@ -40,22 +40,14 @@
   color: #E06844;
 }
 
-.icon-wrap {
-  width: 52rpx;
-  height: 52rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.tab-icon {
+  width: 48rpx;
+  height: 48rpx;
   transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.tab-item.active .icon-wrap {
+.tab-item.active .tab-icon {
   transform: translateY(-4rpx);
-}
-
-.icon {
-  width: 48rpx;
-  height: 48rpx;
 }
 
 .tab-label {

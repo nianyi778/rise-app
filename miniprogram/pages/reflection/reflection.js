@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../../api/index");
 const index_2 = require("../../store/index");
 const index_3 = require("../../utils/index");
-const cache_1 = require("../../utils/cache");
 Page({
     _streamTask: null,
     _greeted: false,
@@ -17,15 +16,16 @@ Page({
         scrollToId: '',
         pageEntered: false,
     },
-    onShow() {
+    async onShow() {
         const today = new Date().toISOString().slice(0, 10);
-        this.setData({ dateLabel: (0, index_3.friendlyDate)(today) });
+        this.setData({ dateLabel: (0, index_3.friendlyDate)(today), pageEntered: false });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 1 });
-        this._loadCheckin();
+        await this._loadCheckin();
+        setTimeout(() => this.setData({ pageEntered: true }), 50);
     },
-    _loadCheckin() {
-        var _a;
+    async _loadCheckin() {
+        var _a, _b;
         const storeState = index_2.store.getState();
         const today = new Date().toISOString().slice(0, 10);
         // In-memory store takes priority (populated immediately after check-in)
@@ -34,16 +34,35 @@ Page({
             this._applyCheckin(fromStore);
             return;
         }
-        // SWR: show cached checkin immediately, refresh in background
-        const cached = (0, cache_1.swr)(`checkin_${today}`, async () => {
-            var _a;
+        // Check storage cache for instant render
+        const cacheKey = `checkin_${today}`;
+        const cached = wx.getStorageSync(cacheKey);
+        if (cached && cached._id) {
+            this._applyCheckin(cached);
+            // silent background refresh
+            (0, index_1.getTodayCheckin)().then(checkins => {
+                var _a;
+                const fresh = (_a = checkins.find(c => c.date === today)) !== null && _a !== void 0 ? _a : null;
+                if (fresh) {
+                    wx.setStorageSync(cacheKey, fresh);
+                    this._applyCheckin(fresh);
+                }
+            }).catch(() => { });
+            return;
+        }
+        try {
             const checkins = await (0, index_1.getTodayCheckin)();
-            return (_a = checkins.find(c => c.date === today)) !== null && _a !== void 0 ? _a : null;
-        }, (fresh) => this._applyCheckin(fresh));
-        this._applyCheckin(cached);
+            const checkin = (_b = checkins.find(c => c.date === today)) !== null && _b !== void 0 ? _b : null;
+            if (checkin)
+                wx.setStorageSync(cacheKey, checkin);
+            this._applyCheckin(checkin);
+        }
+        catch (_c) {
+            this._applyCheckin(null);
+        }
     },
     _applyCheckin(checkin) {
-        this.setData({ todayCheckin: checkin, pageEntered: true });
+        this.setData({ todayCheckin: checkin });
         const storeState = index_2.store.getState();
         if (checkin && !this._greeted) {
             this._greeted = true;

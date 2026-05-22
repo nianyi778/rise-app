@@ -1,7 +1,6 @@
 import { getTodayCheckin, streamChatMessage } from '../../api/index'
 import { store } from '../../store/index'
 import { friendlyDate } from '../../utils/index'
-import { swr } from '../../utils/cache'
 import type { Checkin, ChatMessage } from '../../types/index'
 
 interface ReflectionData {
@@ -30,17 +29,18 @@ Page<ReflectionData, AnyObject>({
     pageEntered: false,
   },
 
-  onShow() {
+  async onShow() {
     const today = new Date().toISOString().slice(0, 10)
-    this.setData({ dateLabel: friendlyDate(today) })
+    this.setData({ dateLabel: friendlyDate(today), pageEntered: false })
 
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 1 })
 
-    this._loadCheckin()
+    await this._loadCheckin()
+    setTimeout(() => this.setData({ pageEntered: true }), 50)
   },
 
-  _loadCheckin() {
+  async _loadCheckin() {
     const storeState = store.getState()
     const today = new Date().toISOString().slice(0, 10)
 
@@ -51,21 +51,31 @@ Page<ReflectionData, AnyObject>({
       return
     }
 
-    // SWR: show cached checkin immediately, refresh in background
-    const cached = swr<Checkin | null>(
-      `checkin_${today}`,
-      async () => {
-        const checkins = await getTodayCheckin()
-        return checkins.find(c => c.date === today) ?? null
-      },
-      (fresh) => this._applyCheckin(fresh),
-    )
+    // Check storage cache for instant render
+    const cacheKey = `checkin_${today}`
+    const cached = wx.getStorageSync(cacheKey) as Checkin | ''
+    if (cached && cached._id) {
+      this._applyCheckin(cached)
+      // silent background refresh
+      getTodayCheckin().then(checkins => {
+        const fresh = checkins.find(c => c.date === today) ?? null
+        if (fresh) { wx.setStorageSync(cacheKey, fresh); this._applyCheckin(fresh) }
+      }).catch(() => {})
+      return
+    }
 
-    this._applyCheckin(cached)
+    try {
+      const checkins = await getTodayCheckin()
+      const checkin = checkins.find(c => c.date === today) ?? null
+      if (checkin) wx.setStorageSync(cacheKey, checkin)
+      this._applyCheckin(checkin)
+    } catch {
+      this._applyCheckin(null)
+    }
   },
 
   _applyCheckin(checkin: Checkin | null) {
-    this.setData({ todayCheckin: checkin, pageEntered: true })
+    this.setData({ todayCheckin: checkin })
     const storeState = store.getState()
     if (checkin && !this._greeted) {
       this._greeted = true

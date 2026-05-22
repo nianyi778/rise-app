@@ -2,7 +2,6 @@ import { getTodaySession, getGoals } from '../../api/index'
 import { store } from '../../store/index'
 import { greeting, weekdayCN, formatDate, calcDashOffset, RING_CIRCUMFERENCE_27 } from '../../utils/index'
 import { drawShareCard } from '../../utils/shareCard'
-import { swr } from '../../utils/cache'
 import type { Goal, Session } from '../../types/index'
 
 interface HomeData {
@@ -47,41 +46,53 @@ Page<HomeData, AnyObject>({
   },
 
   async onShow() {
+    this.setData({ pageEntered: false })
     const tabBar = this.getTabBar() as unknown as { setData: (d: object) => void } | undefined
     tabBar?.setData({ selected: 0 })
-    this._loadData()
+    await this.loadData()
+    setTimeout(() => this.setData({ pageEntered: true }), 50)
   },
 
-  _loadData(silent = false) {
+  async loadData() {
     type CacheShape = { goal: Goal; session: Session }
-    const cached = swr<CacheShape>(
-      'home_data',
-      async () => {
-        const goals = await getGoals()
-        const activeGoal = goals.find(g => g.status === 'active')
-        if (!activeGoal) throw new Error('no_goal')
-        const session = await getTodaySession(activeGoal._id)
-        return { goal: activeGoal, session }
-      },
-      (fresh) => this._applyData(fresh.goal, fresh.session, true),
-    )
+    const cached = wx.getStorageSync('home_data') as CacheShape | ''
+    if (cached && cached.goal) {
+      this._renderData(cached.goal, cached.session)
+      this.setData({ loading: false })
+      // silent background refresh
+      getGoals().then(goals => {
+        const g = goals.find(g => g.status === 'active')
+        if (!g) return
+        return getTodaySession(g._id).then(s => {
+          wx.setStorageSync('home_data', { goal: g, session: s })
+          this._renderData(g, s)
+        })
+      }).catch(() => {})
+      return
+    }
 
-    if (cached) {
-      this._applyData(cached.goal, cached.session, false)
-    } else if (!silent) {
-      this.setData({ loading: true })
+    this.setData({ loading: true })
+    try {
+      const goals = await getGoals()
+      const activeGoal = goals.find(g => g.status === 'active') || null
+      if (!activeGoal) { wx.reLaunch({ url: '/pages/welcome/welcome' }); return }
+      const session = await getTodaySession(activeGoal._id)
+      wx.setStorageSync('home_data', { goal: activeGoal, session })
+      this._renderData(activeGoal, session)
+      this.setData({ loading: false })
+    } catch {
+      this.setData({ loading: false })
+      wx.showToast({ title: '加载失败，请下拉刷新', icon: 'none' })
     }
   },
 
-  _applyData(activeGoal: Goal, session: Session, fromFresh: boolean) {
+  _renderData(activeGoal: Goal, session: Session) {
     const dayProgress = activeGoal.phase.durationDays > 0
       ? session.dayIndex / activeGoal.phase.durationDays
       : 0
-
     store.setCurrentGoal(activeGoal)
     store.setTodaySession(session)
     const state = store.getState()
-
     this.setData({
       goal: activeGoal,
       session,
@@ -91,20 +102,13 @@ Page<HomeData, AnyObject>({
       dayProgressPct: Math.floor(dayProgress * 100),
       dayDashOffset: calcDashOffset(dayProgress, 27),
       aiNote: activeGoal.aiPlan?.encouragement || '专注当下，每一步都算数',
-      loading: false,
-      pageEntered: true,
     })
-
-    if (fromFresh) {
-      setTimeout(() => this._drawDayRing(dayProgress), 100)
-    } else {
-      setTimeout(() => this._drawDayRing(dayProgress), 200)
-    }
+    setTimeout(() => this._drawDayRing(dayProgress), 200)
   },
 
   onPullDownRefresh() {
-    this._loadData(false)
-    wx.stopPullDownRefresh()
+    wx.removeStorageSync('home_data')
+    this.loadData().then(() => wx.stopPullDownRefresh())
   },
 
   /**

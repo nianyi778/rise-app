@@ -4,7 +4,6 @@ const index_1 = require("../../api/index");
 const index_2 = require("../../store/index");
 const index_3 = require("../../utils/index");
 const shareCard_1 = require("../../utils/shareCard");
-const cache_1 = require("../../utils/cache");
 Page({
     data: {
         greet: '',
@@ -31,27 +30,48 @@ Page({
         });
     },
     async onShow() {
+        this.setData({ pageEntered: false });
         const tabBar = this.getTabBar();
         tabBar === null || tabBar === void 0 ? void 0 : tabBar.setData({ selected: 0 });
-        this._loadData();
+        await this.loadData();
+        setTimeout(() => this.setData({ pageEntered: true }), 50);
     },
-    _loadData(silent = false) {
-        const cached = (0, cache_1.swr)('home_data', async () => {
+    async loadData() {
+        const cached = wx.getStorageSync('home_data');
+        if (cached && cached.goal) {
+            this._renderData(cached.goal, cached.session);
+            this.setData({ loading: false });
+            // silent background refresh
+            (0, index_1.getGoals)().then(goals => {
+                const g = goals.find(g => g.status === 'active');
+                if (!g)
+                    return;
+                return (0, index_1.getTodaySession)(g._id).then(s => {
+                    wx.setStorageSync('home_data', { goal: g, session: s });
+                    this._renderData(g, s);
+                });
+            }).catch(() => { });
+            return;
+        }
+        this.setData({ loading: true });
+        try {
             const goals = await (0, index_1.getGoals)();
-            const activeGoal = goals.find(g => g.status === 'active');
-            if (!activeGoal)
-                throw new Error('no_goal');
+            const activeGoal = goals.find(g => g.status === 'active') || null;
+            if (!activeGoal) {
+                wx.reLaunch({ url: '/pages/welcome/welcome' });
+                return;
+            }
             const session = await (0, index_1.getTodaySession)(activeGoal._id);
-            return { goal: activeGoal, session };
-        }, (fresh) => this._applyData(fresh.goal, fresh.session, true));
-        if (cached) {
-            this._applyData(cached.goal, cached.session, false);
+            wx.setStorageSync('home_data', { goal: activeGoal, session });
+            this._renderData(activeGoal, session);
+            this.setData({ loading: false });
         }
-        else if (!silent) {
-            this.setData({ loading: true });
+        catch (_a) {
+            this.setData({ loading: false });
+            wx.showToast({ title: '加载失败，请下拉刷新', icon: 'none' });
         }
     },
-    _applyData(activeGoal, session, fromFresh) {
+    _renderData(activeGoal, session) {
         var _a, _b, _c;
         const dayProgress = activeGoal.phase.durationDays > 0
             ? session.dayIndex / activeGoal.phase.durationDays
@@ -68,19 +88,12 @@ Page({
             dayProgressPct: Math.floor(dayProgress * 100),
             dayDashOffset: (0, index_3.calcDashOffset)(dayProgress, 27),
             aiNote: ((_c = activeGoal.aiPlan) === null || _c === void 0 ? void 0 : _c.encouragement) || '专注当下，每一步都算数',
-            loading: false,
-            pageEntered: true,
         });
-        if (fromFresh) {
-            setTimeout(() => this._drawDayRing(dayProgress), 100);
-        }
-        else {
-            setTimeout(() => this._drawDayRing(dayProgress), 200);
-        }
+        setTimeout(() => this._drawDayRing(dayProgress), 200);
     },
     onPullDownRefresh() {
-        this._loadData(false);
-        wx.stopPullDownRefresh();
+        wx.removeStorageSync('home_data');
+        this.loadData().then(() => wx.stopPullDownRefresh());
     },
     /**
      * 使用 Canvas 2D API（非 deprecated 的 createCanvasContext）绘制天数进度环
