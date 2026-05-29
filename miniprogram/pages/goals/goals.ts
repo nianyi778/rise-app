@@ -83,12 +83,14 @@ Page<GoalsData, AnyObject>({
 
   async loadGoals() {
     const cached = wx.getStorageSync('goals_data') as Goal[] | ''
-    if (cached && Array.isArray(cached) && cached.length > 0) {
+    // [] 也是合法缓存（用户目标为空），不加 .length > 0 限制
+    if (cached && Array.isArray(cached)) {
       this._renderGoals(cached)
       this.setData({ loading: false })
+      // 后台刷新：仅在 loading=false 时写入，避免和 _updateStatus 的刷新竞争
       getGoals().then(fresh => {
         wx.setStorageSync('goals_data', fresh)
-        this._renderGoals(fresh)
+        if (!this.data.loading) this._renderGoals(fresh)
       }).catch(() => {})
       return
     }
@@ -109,14 +111,21 @@ Page<GoalsData, AnyObject>({
     const { userInfo, todaySession } = store.getState()
     const isPro = userInfo?.plan === 'pro'
     const maxGoals = isPro ? 5 : 1
+    const today = Date.now()
 
     const displayGoals: GoalDisplayItem[] = rawGoals.map((g: Goal) => {
-      const dayIndex = (todaySession?.goalId === g._id)
-        ? (todaySession?.dayIndex ?? 1)
-        : 1
-      const todayAction = (todaySession?.goalId === g._id)
-        ? (todaySession?.action ?? '')
-        : ''
+      let dayIndex: number
+      let todayAction: string
+      if (todaySession?.goalId === g._id) {
+        // 当前激活目标：用 store 里的精确值
+        dayIndex = todaySession.dayIndex ?? 1
+        todayAction = todaySession.action ?? ''
+      } else {
+        // 非激活目标：从 startDate 估算（没有服务端 session 数据）
+        const elapsed = Math.round((today - new Date(g.startDate).getTime()) / 86400000)
+        dayIndex = Math.min(Math.max(1, elapsed + 1), g.phase.durationDays)
+        todayAction = ''
+      }
       return toDisplayItem(g, dayIndex, todayAction)
     })
 

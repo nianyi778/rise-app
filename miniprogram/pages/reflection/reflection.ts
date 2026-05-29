@@ -94,8 +94,10 @@ Page<ReflectionData, AnyObject>({
     const state = store.getState()
     type HomeCache = { goal: import('../../types/index').Goal; session: import('../../types/index').Session }
     const homeCache = wx.getStorageSync('home_data') as HomeCache | ''
-    const currentGoal = state.currentGoal ?? (homeCache && homeCache.goal ? homeCache.goal : null)
-    const { todaySession } = state
+    const cachedGoal = homeCache && homeCache.goal ? homeCache.goal : null
+    const cachedSession = homeCache && homeCache.session ? homeCache.session : null
+    const currentGoal = state.currentGoal ?? cachedGoal
+    const todaySession = state.todaySession ?? cachedSession
     if (!currentGoal) return
 
     const initMsg: ChatMessage = {

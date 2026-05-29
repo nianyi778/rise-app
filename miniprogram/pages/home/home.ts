@@ -57,13 +57,13 @@ Page<HomeData, AnyObject>({
   async loadData() {
     type CacheShape = { goal: Goal; session: Session }
     const cached = wx.getStorageSync('home_data') as CacheShape | ''
-    if (cached && cached.goal) {
+    if (cached && cached.goal && cached.session) {
       this._renderData(cached.goal, cached.session)
       this.setData({ loading: false })
-      // silent background refresh
+      // silent background refresh — do NOT delete cache if server returns empty (transient flap)
       getGoals().then(goals => {
         const g = goals.find(g => g.status === 'active')
-        if (!g) { wx.removeStorageSync('home_data'); return }
+        if (!g) return
         return getTodaySession(g._id).then(s => {
           wx.setStorageSync('home_data', { goal: g, session: s })
           this._renderData(g, s)

@@ -25,6 +25,11 @@ App({
             index_1.store.setUser(cachedUser);
             this.globalData.userInfo = cachedUser;
         }
+        // 本地 hasOnboarded 标记（优先级高于 user.onboarded，防止后端写入延迟）
+        const localOnboarded = wx.getStorageSync('hasOnboarded');
+        if (localOnboarded) {
+            index_1.store.setState({ hasOnboarded: true });
+        }
         const cachedGoal = wx.getStorageSync('currentGoal');
         if (cachedGoal) {
             index_1.store.setCurrentGoal(cachedGoal);

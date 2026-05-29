@@ -225,7 +225,7 @@ Page({
                 const start = parseInt(parts[0], 10);
                 const end = parts[1] ? parseInt(parts[1], 10) : start;
                 if (nextDay >= start && nextDay <= end) {
-                    tomorrowAction = da.example || da.theme;
+                    tomorrowAction = da.example != null ? da.example : da.theme;
                     break;
                 }
             }

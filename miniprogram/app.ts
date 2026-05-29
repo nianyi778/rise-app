@@ -29,6 +29,12 @@ App<IAppOption>({
       this.globalData.userInfo = cachedUser
     }
 
+    // 本地 hasOnboarded 标记（优先级高于 user.onboarded，防止后端写入延迟）
+    const localOnboarded = wx.getStorageSync('hasOnboarded') as boolean | ''
+    if (localOnboarded) {
+      store.setState({ hasOnboarded: true })
+    }
+
     const cachedGoal = wx.getStorageSync('currentGoal') as Goal | null
     if (cachedGoal) {
       store.setCurrentGoal(cachedGoal)

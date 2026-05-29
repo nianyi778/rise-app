@@ -134,6 +134,7 @@ Page({
         try {
             const result = await (0, index_1.submitCheckin)(payload);
             index_2.store.appendCheckin(result.checkin);
+            wx.removeStorageSync('home_data');
             this.setData({
                 submitting: false,
                 submitted: true,

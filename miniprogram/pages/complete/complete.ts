@@ -175,6 +175,7 @@ Page<CompleteData, AnyObject>({
     try {
       const result = await submitCheckin(payload)
       store.appendCheckin(result.checkin)
+      wx.removeStorageSync('home_data')
       this.setData({
         submitting: false,
         submitted: true,

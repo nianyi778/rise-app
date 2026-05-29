@@ -56,12 +56,15 @@ Page({
     },
     async loadGoals() {
         const cached = wx.getStorageSync('goals_data');
-        if (cached && Array.isArray(cached) && cached.length > 0) {
+        // [] 也是合法缓存（用户目标为空），不加 .length > 0 限制
+        if (cached && Array.isArray(cached)) {
             this._renderGoals(cached);
             this.setData({ loading: false });
+            // 后台刷新：仅在 loading=false 时写入，避免和 _updateStatus 的刷新竞争
             (0, index_1.getGoals)().then(fresh => {
                 wx.setStorageSync('goals_data', fresh);
-                this._renderGoals(fresh);
+                if (!this.data.loading)
+                    this._renderGoals(fresh);
             }).catch(() => { });
             return;
         }
@@ -82,14 +85,22 @@ Page({
         const { userInfo, todaySession } = index_2.store.getState();
         const isPro = (userInfo === null || userInfo === void 0 ? void 0 : userInfo.plan) === 'pro';
         const maxGoals = isPro ? 5 : 1;
+        const today = Date.now();
         const displayGoals = rawGoals.map((g) => {
             var _a, _b;
-            const dayIndex = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
-                ? ((_a = todaySession === null || todaySession === void 0 ? void 0 : todaySession.dayIndex) !== null && _a !== void 0 ? _a : 1)
-                : 1;
-            const todayAction = ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id)
-                ? ((_b = todaySession === null || todaySession === void 0 ? void 0 : todaySession.action) !== null && _b !== void 0 ? _b : '')
-                : '';
+            let dayIndex;
+            let todayAction;
+            if ((todaySession === null || todaySession === void 0 ? void 0 : todaySession.goalId) === g._id) {
+                // 当前激活目标：用 store 里的精确值
+                dayIndex = (_a = todaySession.dayIndex) !== null && _a !== void 0 ? _a : 1;
+                todayAction = (_b = todaySession.action) !== null && _b !== void 0 ? _b : '';
+            }
+            else {
+                // 非激活目标：从 startDate 估算（没有服务端 session 数据）
+                const elapsed = Math.round((today - new Date(g.startDate).getTime()) / 86400000);
+                dayIndex = Math.min(Math.max(1, elapsed + 1), g.phase.durationDays);
+                todayAction = '';
+            }
             return toDisplayItem(g, dayIndex, todayAction);
         });
         const activeGoal = (_a = rawGoals.find((g) => g.status === 'active')) !== null && _a !== void 0 ? _a : null;
